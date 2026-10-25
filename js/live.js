@@ -110,8 +110,21 @@ async function callLiveApi(action) {
   }
 
   if (!data.token || !data.serverUrl || !data.roomName) {
-    throw new Error('Worker chưa trả về đủ thông tin kết nối LiveKit.');
-  }
+  console.error('LiveKit response check:', {
+    action,
+    status: response.status,
+    fields: Object.keys(data),
+    hasToken: Boolean(data.token),
+    hasServerUrl: Boolean(data.serverUrl),
+    hasRoomName: Boolean(data.roomName),
+    response: {
+      error: data.error,
+      message: data.message
+    }
+  });
+
+  throw new Error('Worker chưa trả về đủ thông tin kết nối LiveKit.');
+}
 
   return data;
 }
@@ -397,7 +410,7 @@ export async function closeLivePanel() {
 
   if (liveRole === 'host' && liveRoom) {
     const shouldEnd = confirm(
-      'Anh đang phát Live. Chọn OK để kết thúc buổi Live, hoặc Cancel để giữ buổi phát.'
+      'Bạn đang phát Live. Chọn OK để kết thúc buổi Live, hoặc Cancel để giữ buổi phát.'
     );
 
     if (shouldEnd) {

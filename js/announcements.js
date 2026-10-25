@@ -3,6 +3,7 @@ import { rtdb, auth } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { state } from './app-state.js';
 import { ref, push, set, update, remove, onValue, serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import { uploadToCloudinary } from './cloudinary.js';
 
 const announcementRef = ref(rtdb, 'thongbao');
 
@@ -74,6 +75,7 @@ function getEditorHtml(id) {
   return sanitizeAnnouncementHtml(editor.innerHTML);
 }
 
+
 function sanitizeAnnouncementHtml(html) {
   const parsed = new DOMParser().parseFromString(
     String(html || ''),
@@ -89,7 +91,7 @@ function sanitizeAnnouncementHtml(html) {
     'BLOCKQUOTE', 'HR',
     'TABLE', 'THEAD', 'TBODY', 'TFOOT',
     'TR', 'TD', 'TH',
-    'FONT'
+    'FONT', 'IMG'
   ]);
 
   const allowedStyles = new Set([
@@ -119,17 +121,62 @@ function sanitizeAnnouncementHtml(html) {
     'border-style',
     'border-collapse',
     'width',
-    'height'
+    'height',
+    'max-width'
   ]);
 
   function cleanNode(node) {
     for (const child of [...node.children]) {
       if (!allowedTags.has(child.tagName)) {
-        if (['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'SVG', 'MATH'].includes(child.tagName)) {
+        if ([
+          'SCRIPT', 'STYLE', 'IFRAME', 'OBJECT',
+          'EMBED', 'SVG', 'MATH'
+        ].includes(child.tagName)) {
           child.remove();
         } else {
           child.replaceWith(...child.childNodes);
         }
+        continue;
+      }
+
+      if (child.tagName === 'IMG') {
+        const src = child.getAttribute('src') || '';
+
+        let safeUrl = false;
+
+        try {
+          const url = new URL(src);
+
+          safeUrl =
+            url.protocol === 'https:' &&
+            url.hostname === 'res.cloudinary.com' &&
+            url.pathname.startsWith('/cuuhocsinh126/');
+        } catch {
+          safeUrl = false;
+        }
+
+        if (!safeUrl) {
+          child.remove();
+          continue;
+        }
+
+        const alt = child.getAttribute('alt') || '';
+
+        for (const attr of [...child.attributes]) {
+          if (!['src', 'alt', 'style', 'width', 'height'].includes(
+            attr.name.toLowerCase()
+          )) {
+            child.removeAttribute(attr.name);
+          }
+        }
+
+        child.setAttribute('src', src);
+        child.setAttribute('alt', alt);
+        child.setAttribute('loading', 'lazy');
+        child.style.maxWidth = '100%';
+        child.style.height = 'auto';
+
+        cleanNode(child);
         continue;
       }
 
@@ -172,6 +219,7 @@ function sanitizeAnnouncementHtml(html) {
   cleanNode(parsed.body);
   return parsed.body.innerHTML;
 }
+
 
 function setEditorHtml(id, html) {
   const editor = document.getElementById(id);
@@ -455,6 +503,80 @@ export function initAnnouncements() {
   }
 
   initialized = true;
+
+  const announcementContent = $('announcement-content');
+
+  announcementContent?.addEventListener('paste', async event => {
+    const items = [...(event.clipboardData?.items || [])];
+    const imageItems = items.filter(item =>
+      item.kind === 'file' && item.type.startsWith('image/')
+    );
+
+    // Không có ảnh trong clipboard thì để trình duyệt dán văn bản bình thường.
+    if (!imageItems.length) return;
+
+    event.preventDefault();
+
+    const files = imageItems
+      .map(item => item.getAsFile())
+      .filter(Boolean);
+
+    if (!files.length) return;
+
+    const selection = window.getSelection();
+    let savedRange = null;
+
+    if (selection?.rangeCount) {
+      const range = selection.getRangeAt(0);
+      if (announcementContent.contains(range.commonAncestorContainer)) {
+        savedRange = range.cloneRange();
+      }
+    }
+
+    try {
+      for (const file of files) {
+        const uploaded = await uploadToCloudinary(file, 'image');
+
+        const img = document.createElement('img');
+        img.src = uploaded.url;
+        img.alt = file.name || 'Ảnh thông báo';
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '8px 0';
+
+        announcementContent.focus();
+
+        const currentSelection = window.getSelection();
+
+        if (savedRange && announcementContent.contains(savedRange.commonAncestorContainer)) {
+          currentSelection?.removeAllRanges();
+          currentSelection?.addRange(savedRange);
+        }
+
+        const range = currentSelection?.rangeCount
+          ? currentSelection.getRangeAt(0)
+          : null;
+
+        if (range && announcementContent.contains(range.commonAncestorContainer)) {
+          range.deleteContents();
+          range.insertNode(img);
+          range.setStartAfter(img);
+          range.collapse(true);
+          currentSelection.removeAllRanges();
+          currentSelection.addRange(range);
+          savedRange = range.cloneRange();
+        } else {
+          announcementContent.appendChild(img);
+        }
+
+        announcementContent.appendChild(document.createElement('br'));
+      }
+    } catch (error) {
+      console.error('Không thể dán ảnh thông báo:', error);
+      alert('Chèn ảnh chưa thành công. Bạn thử lại nhé.');
+    }
+  });
 
 onAuthStateChanged(auth, user => {
   currentUid = user?.uid || null;
