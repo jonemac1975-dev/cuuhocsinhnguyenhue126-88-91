@@ -1,16 +1,273 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kỷ Niệm Cựu Học Sinh - Dòng Thời Gian & Kết Nối</title>
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Be Vietnam Pro for refined typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Style -->
   <link rel="stylesheet" href="css/styles.css">
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fbf7f0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d97706;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #b45309;
+    }
+
+    /* Hero Glass Overlay */
+    .hero-banner {
+      position: relative;
+      overflow: hidden;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px -5px rgba(180, 83, 9, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      max-height: 490px;
+    }
+    #hero-background {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(28, 25, 23, 0.85) 0%, rgba(28, 25, 23, 0.4) 50%, rgba(28, 25, 23, 0.1) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+      color: #ffffff;
+    }
+    .hero-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      background: linear-gradient(to right, #ffffff, #fef3c7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @media (min-width: 640px) {
+      .hero-title {
+        font-size: 2.25rem;
+      }
+    }
+    .hero-marquee {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: #fde68a;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Tab active styles */
+    .tab-btn.active {
+      background-color: #ffffff;
+      color: #b45309;
+      box-shadow: 0 2px 8px rgba(180, 83, 9, 0.12);
+      font-weight: 700;
+    }
+
+    /* Placeholder styling for ContentEditable */
+    [contenteditable="true"]:empty:before {
+      content: attr(data-placeholder);
+      color: #a8a29e;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Footer Styles */
+    .site-footer {
+      background: linear-gradient(180deg, #1c1917 0%, #0c0a09 100%);
+      color: #e7e5e4;
+      padding: 3.5rem 1rem 2rem 1rem;
+      margin-top: 4rem;
+      border-top: 3px solid #f59e0b;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+      text-align: center;
+    }
+    .footer-brand h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #fbbf24;
+      margin-top: 0.75rem;
+    }
+    .footer-emblem {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, #f59e0b, #b45309);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+    }
+    .footer-slogan {
+      color: #d6d3d1;
+      font-size: 0.9rem;
+      margin-top: 0.25rem;
+    }
+    .footer-ornament {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      color: #f59e0b;
+      justify-content: center;
+    }
+    .footer-ornament span {
+      height: 1px;
+      width: 60px;
+      background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+    }
+    .footer-editorial {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(44, 40, 37, 0.6);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 1.5rem;
+      padding: 1.75rem;
+      backdrop-filter: blur(8px);
+    }
+    .footer-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #f59e0b;
+    }
+    .footer-editorial h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 0.25rem;
+    }
+    .footer-section-description {
+      font-size: 0.85rem;
+      color: #a8a29e;
+      margin-top: 0.25rem;
+    }
+    .editorial-board-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 1.25rem;
+    }
+    .footer-quick-links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: #d6d3d1;
+      font-weight: 500;
+    }
+    .footer-quick-links a {
+      transition: color 0.2s;
+    }
+    .footer-quick-links a:hover {
+      color: #fbbf24;
+    }
+    .footer-quick-links span {
+      color: #78716c;
+    }
+    .footer-bottom {
+      border-top: 1px solid #292524;
+      padding-top: 1.5rem;
+      width: 100%;
+      font-size: 0.8rem;
+      color: #78716c;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .footer-bottom strong {
+      color: #e7e5e4;
+    }
+    .footer-back-to-top {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 9999px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .footer-back-to-top:hover {
+      background: #f59e0b;
+      color: #ffffff;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+    .footer-admin-btn {
+      background: #f59e0b;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .footer-admin-btn:hover {
+      background: #d97706;
+    }
+    .footer-cancel-btn {
+      background: #44403c;
+      color: #e7e5e4;
+      font-weight: 600;
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      transition: background 0.2s;
+    }
+    .footer-cancel-btn:hover {
+      background: #57534e;
+    }
+  </style>
 
   <!-- Firebase SDKs (Modular Script Version) -->
   <script type="module" src="js/firebase-config.js"></script>
@@ -21,960 +278,840 @@
   <script type="module" src="js/events.js"></script>
   <script type="module" src="js/directory.js"></script>
   <script type="module" src="js/main.js"></script>
-<script type="module" src="js/memory-album.js"></script>
+  <script type="module" src="js/memory-album.js"></script>
 </head>
-<body class="bg-amber-50/40 text-stone-800 flex flex-col min-h-screen">
+<body class="bg-gradient-to-br from-amber-50/70 via-stone-50 to-orange-50/50 text-stone-800 flex flex-col min-h-screen selection:bg-amber-200 selection:text-amber-900">
 
   <!-- Header / Navigation Bar -->
-  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-amber-100 shadow-sm">
+  <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-amber-100/80 shadow-sm transition-all">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('feed')">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white shadow-md shadow-amber-200">
+      <div class="flex items-center space-x-3 cursor-pointer group" onclick="switchTab('feed')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform duration-300">
           <i class="fa-solid fa-graduation-cap text-xl"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight text-amber-950">Cựu HS NGUYỄN HUỆ 12/6</h1>
-          <p class="text-xs text-amber-600/80 font-medium">Giữ mãi tuổi thơ</p>
+          <h1 class="font-extrabold text-base sm:text-lg leading-tight text-stone-900 group-hover:text-amber-700 transition-colors">Cựu HS NGUYỄN HUỆ 12/6</h1>
+          <p class="text-[11px] text-amber-600 font-semibold tracking-wide">Giữ mãi tuổi thơ</p>
         </div>
       </div>
 
       <!-- Desktop Navigation Tabs -->
-      <nav class="hidden md:flex items-center space-x-1 bg-amber-100/50 p-1 rounded-xl">
-        <button onclick="switchTab('feed')" id="nav-feed" class="tab-btn active px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center space-x-2">
+      <nav class="hidden md:flex items-center space-x-1 bg-amber-100/40 p-1 rounded-2xl border border-amber-200/40">
+        <button onclick="switchTab('feed')" id="nav-feed" class="tab-btn active px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-stone-600 hover:text-amber-700">
           <i class="fa-solid fa-newspaper"></i> <span>Đăng Tin</span>
         </button>
-        <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center space-x-2 relative">
+        <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 relative text-stone-600 hover:text-amber-700">
           <i class="fa-solid fa-comments"></i> <span>Hộp Chat</span>
-          <span class="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2 animate-ping"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-red-500 absolute top-2 right-2 animate-ping"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-red-500 absolute top-2 right-2"></span>
         </button>
-        <button onclick="switchTab('events')" id="nav-events" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center space-x-2">
+        <button onclick="switchTab('events')" id="nav-events" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-stone-600 hover:text-amber-700">
           <i class="fa-solid fa-calendar-days"></i> <span>Lịch Họp Lớp</span>
         </button>
-        <button onclick="switchTab('directory')" id="nav-directory" class="tab-btn px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center space-x-2">
+        <button onclick="switchTab('directory')" id="nav-directory" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-stone-600 hover:text-amber-700">
           <i class="fa-solid fa-address-book"></i> <span>Danh Bạ</span>
         </button>
       </nav>
 
       <!-- User Auth Profile -->
-      
-<div class="flex items-center space-x-3">
-  <div id="user-info" class="flex flex-col items-center bg-stone-100 py-1.5 px-3 rounded-xl border border-stone-200">
-    <div class="flex items-center space-x-2">
-      <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Guest" class="w-7 h-7 rounded-full bg-amber-200 object-cover">
-      <span id="user-name" class="text-xs font-semibold text-stone-700 max-w-[100px] truncate">Bạn học</span>
-    </div>
-    <button id="profile-edit-btn" onclick="openProfileEditModal()" class="hidden text-[10px] text-amber-700 hover:text-amber-900 font-semibold underline mt-1 whitespace-nowrap">
-      Cập Nhật Thông Tin Cá Nhân
-    </button>
-  </div>
-  <button id="auth-action-btn" onclick="openAuthModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3.5 py-2 rounded-xl font-medium transition-colors flex items-center space-x-1 shadow-sm">
-    <i class="fa-solid fa-right-to-bracket"></i> <span id="auth-btn-text">Đăng Nhập</span>
-  </button>
-</div>
-</div>
-
-  </header>
-
-    <!-- Ảnh nền kỷ niệm -->
-  <section id="hero-banner" class="hero-banner">
-    <img id="hero-background" src="store/anh1.png" alt="Ảnh kỷ niệm lớp">
-    
-<div class="hero-overlay">
-  <h2 class="hero-title">CỰU HỌC SINH NGUYỄN HUỆ 88 - 91</h2>
-  <div class="hero-marquee">
-    <p>Lớp Chúng Ta Của Năm Ấy — Mãi Mãi Một Thời Để Nhớ</p>
-  </div>
-</div>
-  </section>
-
-
-  <!-- KHU LIVESTREAM -->
-  <section id="live-section"
-           class="hidden mb-5 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-    <div class="flex items-center justify-between gap-3 border-b border-stone-200 p-4">
-      <div>
-        <h2 class="text-lg font-bold text-stone-800">
-          <i class="fa-solid fa-video mr-2 text-red-600"></i>Livestream lớp mình
-        </h2>
-        <p id="live-status" class="mt-1 text-sm text-stone-500">
-          Chưa có buổi Live đang diễn ra
-        </p>
-      </div>
-      <button type="button"
-              onclick="closeLivePanel()"
-              class="rounded-lg px-3 py-2 text-sm text-stone-500 hover:bg-stone-100">
-        Đóng
-      </button>
-    </div>
-
-    <div id="live-video-container" class="hidden bg-black">
-      <div id="live-video-grid"
-           class="grid grid-cols-1 gap-2 p-2">
-      </div>
-    </div>
-
-    <div class="flex flex-wrap gap-2 p-4">
-      <button type="button" id="live-start-btn"
-              onclick="startLive()"
-              class="rounded-xl bg-red-600 px-4 py-2.5 font-bold text-white hover:bg-red-700">
-        <i class="fa-solid fa-tower-broadcast mr-1"></i>Bắt đầu Live
-      </button>
-
-      <button type="button" id="live-join-btn"
-              onclick="joinLive()"
-              class="hidden rounded-xl bg-green-600 px-4 py-2.5 font-bold text-white hover:bg-green-700">
-        <i class="fa-solid fa-play mr-1"></i>Tham gia xem
-      </button>
-
-      <button type="button" id="live-end-btn"
-              onclick="endLive()"
-              class="hidden rounded-xl bg-stone-800 px-4 py-2.5 font-bold text-white hover:bg-stone-900">
-        <i class="fa-solid fa-stop mr-1"></i>Kết thúc Live
-      </button>
-    </div>
-  </section>
-
-
-<!-- Content Container -->
-<main class="flex-grow max-w-[1600px] w-full mx-auto px-4 py-6">
-
-  <!-- KHU TIKTOK LỚP MÌNH -->
-  <section id="tiktok-section"
-           class="mb-5 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-
-    <div class="flex items-center justify-between gap-3 bg-gradient-to-r from-stone-900 to-stone-700 p-4 text-white">
-      <div>
-        <h3 class="flex items-center gap-2 text-lg font-extrabold">
-          <i class="fa-brands fa-tiktok"></i>
-          TikTok lớp mình
-        </h3>
-        <p class="mt-1 text-xs text-stone-300">
-          Clip vui — Kỷ niệm — Chuyện ngày xưa
-        </p>
-      </div>
-
-      <button type="button"
-              id="tiktok-create-btn"
-              class="shrink-0 rounded-xl bg-amber-500 px-3 py-2 text-sm font-bold text-white shadow transition hover:bg-amber-600">
-        <i class="fa-solid fa-plus mr-1"></i>Tạo TikTok
-      </button>
-    </div>
-
-    <!-- Danh sách clip -->
-    <div id="tiktok-list"
-         class="flex gap-3 overflow-x-auto p-4">
-      <p class="text-sm text-stone-500">Đang tải clip...</p>
-    </div>
-
-    <!-- Form đăng clip: mặc định ẩn -->
-    <div id="tiktok-form-panel" class="hidden border-t border-stone-200 p-4">
-      <form id="tiktok-form" class="space-y-3">
-        <div>
-          <label for="tiktok-url" class="mb-1 block text-sm font-semibold text-stone-700">
-            Link video TikTok
-          </label>
-          <input id="tiktok-url"
-                 type="url"
-                 required
-                 placeholder="Dán link TikTok vào đây..."
-                 class="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm">
-        </div>
-
-        <div>
-          <label for="tiktok-caption" class="mb-1 block text-sm font-semibold text-stone-700">
-            Lời giới thiệu
-          </label>
-          <textarea id="tiktok-caption"
-                    rows="2"
-                    maxlength="500"
-                    placeholder="Chia sẻ vài dòng với bạn bè..."
-                    class="w-full rounded-xl border border-stone-300 px-3 py-2 text-sm"></textarea>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <button type="submit"
-                  id="tiktok-submit-btn"
-                  class="rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700">
-            Đăng clip
-          </button>
-          <button type="button"
-                  id="tiktok-cancel-btn"
-                  class="rounded-xl bg-stone-100 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-200">
-            Hủy
-          </button>
-        </div>
-
-        <p id="tiktok-form-status" class="text-sm" aria-live="polite"></p>
-      </form>
-    </div>
-  </section>
-
-  <!-- TIÊU ĐỀ DÒNG THỜI GIAN -->
-  <div class="mb-4 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 p-3 text-red-700 shadow-md">
-    <h3 class="mb-1 flex items-center gap-2 font-bold text-base">
-      <i class="fa-solid fa-quote-left"></i>
-      Dòng thời gian
-    </h3>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-1 gap-4 items-start">
-    <!-- Cột nội dung chính -->
-    <div class="lg:col-span-2 min-w-0">
-
-      
-<!-- Form Đăng Bài: chỉ hiện khi bấm Bảng Tin -->
-<div id="feed-composer" class="hidden bg-white rounded-2xl shadow-sm border border-stone-200 p-4 mb-5">
-  <div class="flex items-center gap-3">
-    <img id="post-author-avatar" src="store/logo.png" alt="Avatar" class="w-11 h-11 rounded-full object-cover bg-stone-100">
-    <div>
-      <div id="post-author-name" class="font-bold text-sm text-stone-800">Cựu Học Sinh 126</div>
-      <div class="text-xs text-stone-500">Status · Bạn đang nghĩ gì?</div>
-    </div>
-  </div>
-  <form id="create-post-form" onsubmit="handleCreatePost(event)" class="mt-3">
-    <textarea id="post-content" rows="3" placeholder="Bạn đang nghĩ gì?" class="w-full resize-y border-0 outline-none focus:ring-0 text-base text-stone-800 placeholder:text-stone-400 py-3"></textarea>
-    <input type="text" id="post-title" class="hidden" value="">
-    
-<input type="file" id="post-image-files" accept="image/*" multiple class="hidden" onchange="previewPostMedia()">
-<input type="file" id="post-video-files" accept="video/*" multiple class="hidden" onchange="previewPostMedia()">
-
-    <div id="post-media-preview" class="grid grid-cols-2 gap-2"></div>
-    <div class="flex items-center justify-around border border-stone-200 rounded-xl p-2 mt-2">
-      <button type="button" onclick="document.getElementById('post-image-files').click()" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-green-50 text-green-700 font-medium text-sm">
-        <i class="fa-solid fa-image"></i> Ảnh
-      </button>
-      <button type="button" onclick="document.getElementById('post-video-files').click()" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 text-blue-700 font-medium text-sm">
-        <i class="fa-solid fa-video"></i> Video
-      </button>
-      
-<button type="button" id="live-open-btn" onclick="openLivePanel()" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 font-medium text-sm">
-  <i class="fa-solid fa-video"></i> Live
-</button>
-
-    </div>
-    
-<div class="flex gap-2 mt-3">
-<button id="post-submit-btn" type="submit" class="flex-none w-auto rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-1.5 transition">Đăng bài</button>
-<button id="post-cancel-edit-btn" type="button" onclick="cancelEditPost()" class="hidden rounded-xl border border-blue-600 bg-blue-600 px-4 py-2.5 font-medium text-white hover:bg-blue-700">Hủy sửa</button>
-</div>
-
-
-<input type="hidden" id="editing-post-id" value="">
-<div id="post-existing-media" class="grid grid-cols-2 gap-2 mt-2"></div>
-
-  </form>
-</div>
-
-<!-- Dòng thời gian: luôn hiển thị khi mở web -->
-<div id="posts-list" class="space-y-5"></div>
-
-<!-- Tab Feed giữ lại để tương thích với hệ thống chuyển tab -->
-<div id="tab-feed" class="tab-content hidden"></div>
-
-
-      <!-- Tab 2: Group Chat -->
-      <div id="tab-chat" class="tab-content hidden">
-<div class="bg-white rounded-2xl shadow-sm border border-stone-200 h-[90vh] flex overflow-hidden">
-  <aside class="w-45 shrink-0 border-r border-stone-200 bg-white flex flex-col">
-    <div class="p-4 border-b border-stone-200">
-      <h3 class="font-bold text-stone-800">Thành viên</h3>
-      <p id="chat-member-count" class="text-xs text-stone-500 mt-1">Đang tải danh sách...</p>
-    </div>
-    <div id="chat-member-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-      <p class="text-xs text-stone-400 p-3">Đang tải thành viên...</p>
-    </div>
-  </aside>
-  <div class="flex-1 min-w-0 flex flex-col">
-          <div class="p-4 border-b border-stone-200 bg-amber-50/50 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-comments"></i></div>
-              <div>
-                <h3 class="font-bold text-stone-800 text-base">Hộp Chat Chung Cả Lớp</h3>
-                <p class="text-xs text-stone-500"><span class="w-2 h-2 rounded-full bg-green-500 inline-block mr-1"></span>Trực tuyến thời gian thực</p>
-              </div>
-            </div>
+      <div class="flex items-center space-x-3">
+        <div id="user-info" class="flex flex-col items-center bg-stone-100/80 hover:bg-stone-100 py-1.5 px-3 rounded-xl border border-stone-200/70 transition-all">
+          <div class="flex items-center space-x-2">
+            <img id="user-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Guest" class="w-7 h-7 rounded-full bg-amber-200 object-cover ring-2 ring-amber-400/30">
+            <span id="user-name" class="text-xs font-semibold text-stone-800 max-w-[100px] truncate">Bạn học</span>
           </div>
-          <div id="chat-messages" class="flex-grow p-3 overflow-y-auto space-y-2 bg-stone-50/50"></div>
-	  <div id="chat-reply-preview" class="hidden px-3 py-2 bg-amber-50 border-t border-amber-200 text-sm"></div>
-          
-<form id="chat-form" onsubmit="handleSendMessage(event)" class="p-3 bg-white border-t border-stone-200 flex items-center space-x-2 relative">
-  <div class="relative shrink-0">
-    <button type="button" id="chat-sticker-toggle" class="w-10 h-10 rounded-xl border border-stone-200 hover:bg-amber-50 text-xl transition" aria-label="Mở sticker">😊</button>
-    <div id="chat-sticker-panel" class="hidden absolute bottom-12 left-0 z-50 w-64 rounded-2xl border border-stone-200 bg-white shadow-xl p-3">
-      <p class="text-xs font-semibold text-stone-600 mb-2">Sticker nhanh</p>
-      
-<div class="grid grid-cols-3 gap-3">
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f602" aria-label="Cười ra nước mắt">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f602.png" alt="Cười ra nước mắt" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f60d" aria-label="Mắt hình trái tim">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f60d.png" alt="Mắt hình trái tim" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f970" aria-label="Mặt yêu thương">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f970.png" alt="Mặt yêu thương" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f44d" aria-label="Thích">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f44d.png" alt="Thích" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="2764-fe0f" aria-label="Trái tim">
- <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/2764.png" alt="Trái tim" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f389" aria-label="Chúc mừng">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f389.png" alt="Chúc mừng" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f64f" aria-label="Cảm ơn">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f64f.png" alt="Cảm ơn" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f923" aria-label="Cười lăn">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f923.png" alt="Cười lăn" class="w-16 h-16 object-contain mx-auto">
-  </button>
-  <button type="button" class="chat-sticker-option rounded-xl p-2 hover:bg-amber-50 transition" data-sticker-id="1f917" aria-label="Mặt ôm">
-    <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f917.png" alt="Mặt ôm" class="w-16 h-16 object-contain mx-auto">
-  </button>
-</div>
-
-      <p class="text-[11px] text-stone-400 mt-2">Chọn biểu tượng để thêm vào ô chat</p>
-    </div>
-  </div>
-
-  <input type="file" id="chat-media-input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden>
-  <button type="button" id="chat-media-button" class="w-10 h-10 shrink-0 rounded-xl border border-stone-200 hover:bg-amber-50 text-lg transition" aria-label="Đính kèm ảnh hoặc clip" title="Gửi ảnh hoặc clip">📎</button>
-<input type="text" id="chat-input" placeholder="Nhập tin nhắn với cả lớp..." class="flex-grow min-w-0 px-4 py-2.5 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm">
-  <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl transition font-medium text-sm"><i class="fa-solid fa-paper-plane"></i></button>
-</form>
-
-        </div>
-       </div>
-      </div>
-
-      <!-- Tab 3: Events -->
-      <div id="tab-events" class="tab-content hidden">
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h2 class="text-xl font-bold text-stone-800">Lịch Họp Lớp & Gặp Mặt</h2>
-            <p class="text-xs text-stone-500">Lên kế hoạch và theo dõi danh sách bạn bè tham gia</p>
-          </div>
-          <button id="btn-create-event" onclick="toggleEventModal(true)" class="hidden bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-2.5 rounded-xl font-medium shadow-sm items-center gap-2">
-            <i class="fa-solid fa-plus"></i> Tạo Sự Kiện Mới
+          <button id="profile-edit-btn" onclick="openProfileEditModal()" class="hidden text-[10px] text-amber-700 hover:text-amber-900 font-semibold underline mt-0.5 whitespace-nowrap">
+            Cập Nhật Thông Tin Cá Nhân
           </button>
         </div>
-        <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
-      </div>
-
-      <!-- Tab 4: Directory -->
-      <div id="tab-directory" class="tab-content hidden">
-        <div class="flex justify-between items-center mb-6">
-          <div>
-            <h2 class="text-xl font-bold text-stone-800">Danh Bạ Lớp</h2>
-            <p class="text-xs text-stone-500">Giữ liên lạc, công việc và địa chỉ hiện tại của các bạn học</p>
-          </div>
-          <button id="profile-edit-btn" onclick="openProfileEditModal()" class="bg-stone-800 hover:bg-stone-900 text-white text-xs px-4 py-2.5 rounded-xl font-medium shadow-sm flex items-center gap-2">
-            <i class="fa-solid fa-user-pen"></i> Cập Nhật Thông Tin Cá Nhân
-          </button>
-        </div>
-        <div id="directory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-      </div>
-    </div>
-
-
-<!-- HÀNG CARD: SỰ KIỆN + THÔNG BÁO -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start w-full">
-
-  <!-- CARD SỰ KIỆN SẮP ĐẾN -->
-  <aside class="min-w-0 w-full">
-    <div class="h-full bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl p-3 text-white shadow-md">
-      <h3 class="font-bold text-base mb-3 flex items-center gap-2">
-        <i class="fa-solid fa-calendar-days"></i>
-        Sự kiện sắp đến
-      </h3>
-      <div id="mini-events-list" class="space-y-3"></div>
-    </div>
-  </aside>
-
-  <!-- CARD GÓC THÔNG BÁO -->
-  <section
-    id="announcement-section"
-    class="min-w-0 w-full bg-gradient-to-br from-teal-600 to-emerald-800 rounded-2xl p-3 text-white shadow-md">
-
-    <div class="flex items-center justify-between gap-2 pb-2">
-      <h3 class="font-bold text-base flex items-center gap-2">
-        <i class="fa-solid fa-bullhorn"></i>
-        GÓC THÔNG BÁO
-      </h3>
-
-      <button id="announcement-update-btn"
-              type="button"
-              class="hidden shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-50">
-        + Cập nhật
-      </button>
-    </div>
-
-    <div id="announcement-list" class="space-y-2">
-      <p class="rounded-lg bg-white/90 p-3 text-sm text-stone-600">
-        Đang tải thông báo...
-      </p>
-    </div>
-
-    <div id="announcement-form-wrap" class="hidden pt-3">
-      <form id="announcement-form"
-            class="space-y-3 rounded-xl bg-white p-3 text-stone-800">
-
-        <div>
-          <label for="announcement-title"
-                 class="mb-1 block text-sm font-bold">
-            Tiêu đề — dán từ Word
-          </label>
-          <div id="announcement-title"
-               contenteditable="true"
-               role="textbox"
-               aria-label="Tiêu đề thông báo"
-               aria-multiline="true"
-               class="min-h-12 w-full rounded-lg border border-stone-300 bg-white p-3 text-sm"
-               data-placeholder="Dán tiêu đề từ Word vào đây"></div>
-        </div>
-
-        <div>
-          <label for="announcement-date"
-                 class="mb-1 block text-sm font-bold">Ngày</label>
-          <input id="announcement-date"
-                 type="date"
-                 required
-                 class="w-full rounded-lg border border-stone-300 p-2 text-sm">
-        </div>
-
-        <div>
-          <label for="announcement-content"
-                 class="mb-1 block text-sm font-bold">
-            Nội dung — dán từ Word
-          </label>
-          <div id="announcement-content"
-               contenteditable="true"
-               role="textbox"
-               aria-label="Nội dung thông báo"
-               aria-multiline="true"
-               class="min-h-64 w-full overflow-x-auto rounded-lg border border-stone-300 bg-white p-3 text-sm"
-               data-placeholder="Dán toàn bộ nội dung đã trình bày trong Word vào đây"></div>
-        </div>
-
-        <div class="flex flex-wrap gap-2">
-          <button id="announcement-submit-btn"
-                  type="submit"
-                  class="rounded-lg bg-amber-600 px-3 py-2 text-sm font-bold text-white hover:bg-amber-700">
-            Đăng thông báo
-          </button>
-
-          <button id="announcement-edit-btn"
-                  type="button"
-                  class="hidden rounded-lg bg-blue-700 px-3 py-2 text-sm font-bold text-white hover:bg-blue-800">
-            Sửa
-          </button>
-
-          <button id="announcement-delete-btn"
-                  type="button"
-                  class="hidden rounded-lg bg-red-700 px-3 py-2 text-sm font-bold text-white hover:bg-red-800">
-            Xóa
-          </button>
-
-          <button id="announcement-cancel-btn"
-                  type="button"
-                  class="rounded-lg bg-stone-200 px-3 py-2 text-sm font-bold text-stone-700">
-            Đóng
-          </button>
-        </div>
-      </form>
-    </div>
-  </section>
-
-</div>
-<!-- HẾT HÀNG CARD: SỰ KIỆN + THÔNG BÁO -->
-
-<!-- GÓC ẢNH KÝ ỨC: CHIẾM TRỌN HÀNG RIÊNG -->
-<div id="memory-album-section"
-     class="col-span-full mt-4 w-full min-w-0 overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm">
-
-  <!-- Tiêu đề và nút cập nhật -->
-  <div class="flex items-center justify-between gap-3 bg-gradient-to-r from-amber-50 to-orange-50 p-4">
-    <div class="min-w-0">
-      <h3 class="text-lg font-extrabold text-amber-900">
-        <i class="fa-solid fa-book-open mr-2"></i>GÓC ẢNH KÝ ỨC
-      </h3>
-      <p class="mt-1 text-xs text-stone-500">
-        Lưu giữ những khoảnh khắc đáng nhớ của lớp mình
-      </p>
-    </div>
-
-    <button
-      type="button"
-      id="memory-album-update-btn"
-      class="shrink-0 rounded-xl bg-amber-600 px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-amber-700">
-      <i class="fa-solid fa-plus mr-1"></i>Cập nhật
-    </button>
-  </div>
-
-  <!-- Quyển sách Album kỷ niệm -->
- <div class="p-4">
-
-<div id="memory-album-intro" class="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-100 via-orange-50 to-amber-200 p-4 sm:p-6">
-
-      <!-- Hình minh họa bìa sách -->
-      <div id="memory-album-intro-cover" class="mx-auto max-w-sm">
-        <div class="relative overflow-hidden rounded-r-xl rounded-l-md border-l-[7px] border-amber-900 bg-gradient-to-br from-amber-800 via-amber-700 to-yellow-900 p-5 text-center text-amber-50 shadow-xl sm:p-7">
-
-          <div class="absolute inset-2 rounded-r-lg rounded-l-sm border border-amber-300/50 pointer-events-none"></div>
-
-          <div class="relative">
-            <i class="fa-solid fa-book-open text-4xl text-amber-200 sm:text-5xl"></i>
-
-            <p class="mt-4 text-xs font-semibold uppercase tracking-[0.25em] text-amber-200">
-              Kỷ niệm một thời
-            </p>
-
-            <h4 class="mt-2 text-2xl font-extrabold leading-tight sm:text-3xl">
-              ALBUM<br>KỶ NIỆM
-            </h4>
-
-            <div class="mx-auto my-4 h-px w-24 bg-amber-300/70"></div>
-
-            <p class="text-sm font-medium text-amber-100">
-              Cựu học sinh Nguyễn Huệ 12/6
-            </p>
-
-            <p class="mt-2 text-xs italic text-amber-200">
-              Mãi mãi một thời để nhớ
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <p id="memory-album-summary"
-         class="mt-4 text-center text-sm text-amber-950">
-        Nơi lưu giữ những bức ảnh và lời nhắn của tất cả thành viên lớp mình.
-      </p>
-
-      <div class="mt-4 text-center">
-        <button
-          type="button"
-          id="memory-album-open-btn"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-7 py-3 font-bold text-white shadow-md transition hover:bg-amber-700">
-          <i class="fa-solid fa-book-open"></i>
-          Xem album
+        <button id="auth-action-btn" onclick="openAuthModal()" class="bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md flex items-center space-x-1.5 active:scale-95">
+          <i class="fa-solid fa-right-to-bracket"></i> <span id="auth-btn-text">Đăng Nhập</span>
         </button>
       </div>
     </div>
+  </header>
 
- 
-<!-- BIỂU MẪU QUẢN LÝ GÓC ẢNH KÝ ỨC -->
-<div id="memory-album-form-panel"
-     class="mt-5 hidden rounded-2xl border border-amber-200 bg-amber-50 p-4">
-
-  <div class="mb-4 flex items-center justify-between gap-3">
-    <h4 class="font-bold text-amber-900">
-      <i class="fa-solid fa-images mr-2"></i>CẬP NHẬT ẢNH ALBUM
-    </h4>
-
-    <button type="button"
-            id="memory-album-form-close-btn"
-            class="rounded-lg px-3 py-2 text-sm font-semibold text-stone-600 hover:bg-white">
-      <i class="fa-solid fa-xmark mr-1"></i>Đóng
-    </button>
+  <!-- Hero Banner -->
+  <div class="max-w-[1600px] w-full mx-auto px-4 mt-4">
+    <section id="hero-banner" class="hero-banner">
+      <img id="hero-background" src="store/anh1.png" alt="Ảnh kỷ niệm lớp">
+      <div class="hero-overlay">
+           <h2 class="hero-title">CỰU HỌC SINH NGUYỄN HUỆ 88 - 91</h2>
+        <div class="hero-marquee">
+          <i class="fa-solid fa-sparkles text-amber-300"></i>
+          <p>Lớp Chúng Ta Của Năm Ấy — Mãi Mãi Một Thời Để Nhớ</p>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <form id="memory-album-form" class="space-y-4">
+  <!-- KHU LIVESTREAM -->
+  <div class="max-w-[1600px] w-full mx-auto px-4 mt-4">
+    <section id="live-section" class="hidden overflow-hidden rounded-2xl border border-red-200 bg-white shadow-sm">
+      <div class="flex items-center justify-between gap-3 border-b border-stone-100 bg-red-50/50 p-4">
+        <div>
+          <h2 class="text-lg font-bold text-stone-800 flex items-center">
+            <span class="relative flex h-3 w-3 mr-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+            </span>
+            Livestream lớp mình
+          </h2>
+          <p id="live-status" class="mt-1 text-xs text-stone-500">
+            Chưa có buổi Live đang diễn ra
+          </p>
+        </div>
+        <button type="button" onclick="closeLivePanel()" class="rounded-xl px-3 py-1.5 text-xs font-semibold text-stone-500 hover:bg-stone-100 transition">
+          Đóng
+        </button>
+      </div>
 
-    <!-- Chỉ Admin sử dụng danh sách này -->
-    <div id="memory-album-admin-member-wrap" class="hidden">
-      <label for="memory-album-member-select"
-             class="mb-1 block text-sm font-semibold text-stone-700">
-        Thành viên quản lý ảnh
-      </label>
+      <div id="live-video-container" class="hidden bg-stone-950">
+        <div id="live-video-grid" class="grid grid-cols-1 gap-2 p-2"></div>
+      </div>
 
-      <select id="memory-album-member-select"
-              class="w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm">
-        <option value="">Ảnh của tôi</option>
-      </select>
-    </div>
+      <div class="flex flex-wrap gap-2 p-4 bg-white">
+        <button type="button" id="live-start-btn" onclick="startLive()" class="rounded-xl bg-red-600 px-4 py-2.5 font-bold text-white text-sm hover:bg-red-700 shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-tower-broadcast mr-1.5"></i>Bắt đầu Live
+        </button>
 
-    <div>
-      <label for="memory-album-photo-input"
-             class="mb-1 block text-sm font-semibold text-stone-700">
-        Chọn ảnh
-      </label>
+        <button type="button" id="live-join-btn" onclick="joinLive()" class="hidden rounded-xl bg-emerald-600 px-4 py-2.5 font-bold text-white text-sm hover:bg-emerald-700 shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-play mr-1.5"></i>Tham gia xem
+        </button>
 
-      <input id="memory-album-photo-input"
-             type="file"
-             accept="image/*"
-             class="block w-full rounded-xl border border-amber-200 bg-white p-2 text-sm"
-             required>
+        <button type="button" id="live-end-btn" onclick="endLive()" class="hidden rounded-xl bg-stone-800 px-4 py-2.5 font-bold text-white text-sm hover:bg-stone-900 shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-stop mr-1.5"></i>Kết thúc Live
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Content Container -->
+  <main class="flex-grow max-w-[1600px] w-full mx-auto px-4 py-6">
+
+    <!-- KHU TIKTOK LỚP MÌNH -->
+    <section id="tiktok-section" class="mb-6 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm hover:shadow-md transition-shadow">
+      <div class="flex items-center justify-between gap-3 bg-gradient-to-r from-stone-900 via-stone-800 to-amber-950 p-4 text-white">
+        <div>
+          <h3 class="flex items-center gap-2 text-base sm:text-lg font-extrabold tracking-tight">
+            <span class="p-1.5 bg-stone-800 rounded-lg text-pink-500"><i class="fa-brands fa-tiktok"></i></span>
+            TikTok lớp mình
+          </h3>
+          <p class="mt-0.5 text-xs text-stone-300">
+            Clip vui — Kỷ niệm — Chuyện ngày xưa
+          </p>
         </div>
 
-    <div>
-      <label for="memory-album-note-input"
-             class="mb-1 block text-sm font-semibold text-stone-700">
-        Lời nhắn kỷ niệm
-      </label>
-
-      <textarea id="memory-album-note-input"
-                rows="3"
-                maxlength="500"
-                placeholder="Ghi lại một kỷ niệm đáng nhớ..."
-                class="w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm"></textarea>
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-      <button type="submit"
-              id="memory-album-save-btn"
-              class="rounded-xl bg-amber-600 px-4 py-2 font-bold text-white transition hover:bg-amber-700">
-        <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Lưu ảnh
-      </button>
-
-      <button type="button"
-              id="memory-album-cancel-edit-btn"
-              class="hidden rounded-xl border border-stone-300 bg-white px-4 py-2 font-semibold text-stone-700 hover:bg-stone-100">
-        Hủy sửa
-      </button>
-    </div>
-
-    <p id="memory-album-form-status"
-       class="text-sm"
-       role="status"
-       aria-live="polite"></p>
-  </form>
-
-  <div class="mt-6 border-t border-amber-200 pt-4">
-    <h5 class="mb-3 font-bold text-amber-900">Bộ sưu tập ảnh của bạn</h5>
-
-    <div id="memory-album-manage-list" class="space-y-3">
-      <p class="text-sm text-stone-500">
-        Danh sách ảnh sẽ hiển thị tại đây.
-      </p>
-    </div>
-  </div>
-</div>
-<!-- HẾT BIỂU MẪU QUẢN LÝ -->
-   
-<!-- Khung album lật trang 3D: mặc định đóng -->
-<div id="memory-album-book" class="hidden mt-5">
-
-  <!-- Tiêu đề và nút đóng -->
-  <div class="flex items-center justify-between gap-3">
-    <h4 class="font-bold text-amber-900">
-      <i class="fa-solid fa-book-open mr-1"></i>
-      Album kỷ niệm
-    </h4>
-
-    <button
-      type="button"
-      id="memory-album-close-btn"
-      class="rounded-lg px-3 py-2 text-sm font-semibold text-stone-600 hover:bg-stone-100">
-      <i class="fa-solid fa-xmark mr-1"></i>Đóng album
-    </button>
-  </div>
-
-  <!-- Khu vực sách 3D -->
-  <div id="memory-book-stage" class="mt-4">
-
-    <!-- Bìa sách đóng, dùng cho hiệu ứng mở -->
-    <div id="memory-book-cover" class="hidden">
-      <div class="memory-book-cover-content">
-        <div class="memory-book-cover-title">ALBUM KỶ NIỆM</div>
-        <div class="memory-book-cover-family">CỰU HỌC SINH 12/6</div>
-        <div class="memory-book-cover-place">MÃI MÃI MỘT THỜI ĐỂ NHỚ</div>
+        <button type="button" id="tiktok-create-btn" class="shrink-0 rounded-xl bg-amber-500 hover:bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition active:scale-95">
+          <i class="fa-solid fa-plus mr-1"></i>Tạo TikTok
+        </button>
       </div>
+
+      <!-- Danh sách clip -->
+      <div id="tiktok-list" class="flex gap-3 overflow-x-auto p-4 scrollbar-thin">
+        <p class="text-xs text-stone-500 italic p-2">Đang tải clip...</p>
+      </div>
+
+      <!-- Form đăng clip: mặc định ẩn -->
+      <div id="tiktok-form-panel" class="hidden border-t border-stone-100 p-4 bg-stone-50/50">
+        <form id="tiktok-form" class="space-y-3">
+          <div>
+            <label for="tiktok-url" class="mb-1 block text-xs font-bold text-stone-700">
+              Link video TikTok
+            </label>
+            <input id="tiktok-url" type="url" required placeholder="Dán link TikTok vào đây..." class="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white">
+          </div>
+
+          <div>
+            <label for="tiktok-caption" class="mb-1 block text-xs font-bold text-stone-700">
+              Lời giới thiệu
+            </label>
+            <textarea id="tiktok-caption" rows="2" maxlength="500" placeholder="Chia sẻ vài dòng với bạn bè..." class="w-full rounded-xl border border-stone-200 px-3.5 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none bg-white resize-none"></textarea>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="submit" id="tiktok-submit-btn" class="rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700 transition">
+              Đăng clip
+            </button>
+            <button type="button" id="tiktok-cancel-btn" class="rounded-xl bg-stone-200 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-300 transition">
+              Hủy
+            </button>
+          </div>
+
+          <p id="tiktok-form-status" class="text-xs font-medium" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- TIÊU ĐỀ DÒNG THỜI GIAN -->
+    <div class="mb-5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 p-3.5 text-white shadow-sm flex items-center justify-between">
+      <h3 class="flex items-center gap-2.5 font-bold text-base tracking-wide">
+        <i class="fa-solid fa-quote-left text-amber-200 text-lg"></i>
+        Dòng thời gian
+      </h3>
+      <span class="text-xs bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm font-medium">Nguyễn Huệ 12/6</span>
     </div>
 
-    <!-- Hai trang sách sẽ được JavaScript dựng tại đây -->
-    <div id="memory-book-open-view">
-      <div id="memory-book-container" aria-label="Các trang album kỷ niệm"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-5 items-start">
+      <!-- Cột nội dung chính -->
+      <div class="lg:col-span-2 min-w-0">
+
+        <!-- Form Đăng Bài: chỉ hiện khi bấm Bảng Tin -->
+        <div id="feed-composer" class="hidden bg-white rounded-2xl shadow-sm border border-stone-200/80 p-4 mb-5 transition-all">
+          <div class="flex items-center gap-3">
+            <img id="post-author-avatar" src="store/logo.png" alt="Avatar" class="w-11 h-11 rounded-full object-cover bg-stone-100 ring-2 ring-amber-100">
+            <div>
+              <div id="post-author-name" class="font-bold text-sm text-stone-900">Cựu Học Sinh 126</div>
+              <div class="text-xs text-stone-400 font-medium">Status · Bạn đang nghĩ gì?</div>
+            </div>
+          </div>
+          <form id="create-post-form" onsubmit="handleCreatePost(event)" class="mt-3">
+            <textarea id="post-content" rows="3" placeholder="Bạn đang nghĩ gì?" class="w-full resize-y border-0 outline-none focus:ring-0 text-base text-stone-800 placeholder:text-stone-400 py-2 bg-stone-50/50 rounded-xl px-3"></textarea>
+            <input type="text" id="post-title" class="hidden" value="">
+
+            <input type="file" id="post-image-files" accept="image/*" multiple class="hidden" onchange="previewPostMedia()">
+            <input type="file" id="post-video-files" accept="video/*" multiple class="hidden" onchange="previewPostMedia()">
+
+            <div id="post-media-preview" class="grid grid-cols-2 gap-2 mt-2"></div>
+            <div class="flex items-center justify-around border border-stone-100 bg-stone-50/40 rounded-xl p-1.5 mt-3">
+              <button type="button" onclick="document.getElementById('post-image-files').click()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-emerald-50 text-emerald-700 font-semibold text-xs transition">
+                <i class="fa-solid fa-image text-emerald-600"></i> Ảnh
+              </button>
+              <button type="button" onclick="document.getElementById('post-video-files').click()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-blue-50 text-blue-700 font-semibold text-xs transition">
+                <i class="fa-solid fa-video text-blue-600"></i> Video
+              </button>
+              <button type="button" id="live-open-btn" onclick="openLivePanel()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-rose-50 text-rose-600 font-semibold text-xs transition">
+                <i class="fa-solid fa-tower-broadcast text-rose-600"></i> Live
+              </button>
+            </div>
+
+            <div class="flex gap-2 mt-3">
+              <button id="post-submit-btn" type="submit" class="flex-none w-auto rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 transition shadow-sm text-xs">Đăng bài</button>
+              <button id="post-cancel-edit-btn" type="button" onclick="cancelEditPost()" class="hidden rounded-xl border border-stone-300 bg-stone-100 px-4 py-2 font-semibold text-stone-700 hover:bg-stone-200 text-xs transition">Hủy sửa</button>
+            </div>
+
+            <input type="hidden" id="editing-post-id" value="">
+            <div id="post-existing-media" class="grid grid-cols-2 gap-2 mt-2"></div>
+          </form>
+        </div>
+
+        <!-- Dòng thời gian: luôn hiển thị khi mở web -->
+        <div id="posts-list" class="space-y-5"></div>
+
+        <!-- Tab Feed giữ lại để tương thích với hệ thống chuyển tab -->
+        <div id="tab-feed" class="tab-content hidden"></div>
+
+        <!-- Tab 2: Group Chat -->
+        <div id="tab-chat" class="tab-content hidden">
+          <div class="bg-white rounded-2xl shadow-sm border border-stone-200/80 h-[85vh] flex overflow-hidden">
+            <aside class="w-48 shrink-0 border-r border-stone-100 bg-stone-50/50 flex flex-col">
+              <div class="p-3 border-b border-stone-100 bg-white">
+                <h3 class="font-bold text-stone-800 text-xs tracking-wider uppercase">Thành viên</h3>
+                <p id="chat-member-count" class="text-[11px] text-stone-400 mt-0.5">Đang tải...</p>
+              </div>
+              <div id="chat-member-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <p class="text-xs text-stone-400 p-2 italic">Đang tải thành viên...</p>
+              </div>
+            </aside>
+            <div class="flex-1 min-w-0 flex flex-col">
+              <div class="p-3.5 border-b border-stone-100 bg-amber-50/40 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-base shadow-sm"><i class="fa-solid fa-comments"></i></div>
+                  <div>
+                    <h3 class="font-bold text-stone-800 text-sm">Hộp Chat Chung Cả Lớp</h3>
+                    <p class="text-[11px] text-emerald-600 font-medium flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse"></span>Trực tuyến thời gian thực</p>
+                  </div>
+                </div>
+              </div>
+              <div id="chat-messages" class="flex-grow p-4 overflow-y-auto space-y-3 bg-stone-50/30"></div>
+              <div id="chat-reply-preview" class="hidden px-3 py-2 bg-amber-50 border-t border-amber-200 text-xs"></div>
+
+              <form id="chat-form" onsubmit="handleSendMessage(event)" class="p-3 bg-white border-t border-stone-100 flex items-center space-x-2 relative">
+                <div class="relative shrink-0">
+                  <button type="button" id="chat-sticker-toggle" class="w-9 h-9 rounded-xl border border-stone-200 hover:bg-amber-50 text-lg transition flex items-center justify-center" aria-label="Mở sticker">😊</button>
+                  <div id="chat-sticker-panel" class="hidden absolute bottom-12 left-0 z-50 w-64 rounded-2xl border border-stone-200 bg-white shadow-xl p-3">
+                    <p class="text-xs font-semibold text-stone-600 mb-2">Sticker nhanh</p>
+
+                    <div class="grid grid-cols-3 gap-2">
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f602" aria-label="Cười ra nước mắt">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f602.png" alt="Cười ra nước mắt" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f60d" aria-label="Mắt hình trái tim">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f60d.png" alt="Mắt hình trái tim" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f970" aria-label="Mặt yêu thương">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f970.png" alt="Mặt yêu thương" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f44d" aria-label="Thích">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f44d.png" alt="Thích" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="2764-fe0f" aria-label="Trái tim">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/2764.png" alt="Trái tim" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f389" aria-label="Chúc mừng">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f389.png" alt="Chúc mừng" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f64f" aria-label="Cảm ơn">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f64f.png" alt="Cảm ơn" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f923" aria-label="Cười lăn">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f923.png" alt="Cười lăn" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f917" aria-label="Mặt ôm">
+                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f917.png" alt="Mặt ôm" class="w-12 h-12 object-contain mx-auto">
+                      </button>
+                    </div>
+
+                    <p class="text-[10px] text-stone-400 mt-2 text-center">Chọn biểu tượng để thêm vào ô chat</p>
+                  </div>
+                </div>
+
+                <input type="file" id="chat-media-input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden>
+                <button type="button" id="chat-media-button" class="w-9 h-9 shrink-0 rounded-xl border border-stone-200 hover:bg-amber-50 text-base transition flex items-center justify-center" aria-label="Đính kèm ảnh hoặc clip" title="Gửi ảnh hoặc clip">📎</button>
+                <input type="text" id="chat-input" placeholder="Nhập tin nhắn với cả lớp..." class="flex-grow min-w-0 px-3.5 py-2 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs sm:text-sm">
+                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl transition font-semibold text-xs shrink-0 shadow-sm"><i class="fa-solid fa-paper-plane"></i></button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Events -->
+        <div id="tab-events" class="tab-content hidden">
+          <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl border border-stone-200/80 shadow-sm">
+            <div>
+              <h2 class="text-lg font-bold text-stone-800">Lịch Họp Lớp & Gặp Mặt</h2>
+              <p class="text-xs text-stone-500">Lên kế hoạch và theo dõi danh sách bạn bè tham gia</p>
+            </div>
+            <button id="btn-create-event" onclick="toggleEventModal(true)" class="hidden bg-amber-600 hover:bg-amber-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm items-center gap-2 transition">
+              <i class="fa-solid fa-plus"></i> Tạo Sự Kiện Mới
+            </button>
+          </div>
+          <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </div>
+
+        <!-- Tab 4: Directory -->
+        <div id="tab-directory" class="tab-content hidden">
+          <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl border border-stone-200/80 shadow-sm">
+            <div>
+              <h2 class="text-lg font-bold text-stone-800">Danh Bạ Lớp</h2>
+              <p class="text-xs text-stone-500">Giữ liên lạc, công việc và địa chỉ hiện tại của các bạn học</p>
+            </div>
+            <button id="profile-edit-btn" onclick="openProfileEditModal()" class="bg-stone-800 hover:bg-stone-900 text-white text-xs px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 transition">
+              <i class="fa-solid fa-user-pen"></i> Cập Nhật Thông Tin Cá Nhân
+            </button>
+          </div>
+          <div id="directory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </div>
+      </div>
+
+      <!-- HÀNG CARD: SỰ KIỆN + THÔNG BÁO -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start w-full">
+
+        <!-- CARD SỰ KIỆN SẮP ĐẾN -->
+        <aside class="min-w-0 w-full">
+          <div class="h-full bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 rounded-2xl p-4 text-white shadow-sm border border-amber-400/30">
+            <h3 class="font-extrabold text-base mb-3 flex items-center gap-2 tracking-wide">
+              <i class="fa-solid fa-calendar-days text-amber-200"></i>
+              Sự kiện sắp đến
+            </h3>
+            <div id="mini-events-list" class="space-y-3"></div>
+          </div>
+        </aside>
+
+        <!-- CARD GÓC THÔNG BÁO -->
+        <section id="announcement-section" class="min-w-0 w-full bg-gradient-to-br from-teal-700 via-teal-800 to-emerald-900 rounded-2xl p-4 text-white shadow-sm border border-teal-600/30">
+          <div class="flex items-center justify-between gap-2 pb-2">
+            <h3 class="font-extrabold text-base flex items-center gap-2 tracking-wide">
+              <i class="fa-solid fa-bullhorn text-teal-200"></i>
+              GÓC THÔNG BÁO
+            </h3>
+
+            <button id="announcement-update-btn" type="button" class="hidden shrink-0 rounded-xl bg-white/90 px-3 py-1.5 text-xs font-bold text-teal-900 hover:bg-white shadow-sm transition">
+              + Cập nhật
+            </button>
+          </div>
+
+          <div id="announcement-list" class="space-y-2 mt-1">
+            <p class="rounded-xl bg-white/10 backdrop-blur-md p-3 text-xs text-teal-50 italic">
+              Đang tải thông báo...
+            </p>
+          </div>
+
+          <div id="announcement-form-wrap" class="hidden pt-3">
+            <form id="announcement-form" class="space-y-3 rounded-xl bg-white p-3.5 text-stone-800 shadow-lg">
+
+              <div>
+                <label for="announcement-title" class="mb-1 block text-xs font-bold text-stone-700">
+                  Tiêu đề — dán từ Word
+                </label>
+                <div id="announcement-title" contenteditable="true" role="textbox" aria-label="Tiêu đề thông báo" aria-multiline="true" class="min-h-10 w-full rounded-xl border border-stone-200 bg-white p-2.5 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" data-placeholder="Dán tiêu đề từ Word vào đây"></div>
+              </div>
+
+              <div>
+                <label for="announcement-date" class="mb-1 block text-xs font-bold text-stone-700">Ngày</label>
+                <input id="announcement-date" type="date" required class="w-full rounded-xl border border-stone-200 p-2 text-xs">
+              </div>
+
+              <div>
+                <label for="announcement-content" class="mb-1 block text-xs font-bold text-stone-700">
+                  Nội dung — dán từ Word
+                </label>
+                <div id="announcement-content" contenteditable="true" role="textbox" aria-label="Nội dung thông báo" aria-multiline="true" class="min-h-48 w-full overflow-x-auto rounded-xl border border-stone-200 bg-white p-2.5 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" data-placeholder="Dán toàn bộ nội dung đã trình bày trong Word vào đây"></div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button id="announcement-submit-btn" type="submit" class="rounded-xl bg-amber-600 px-3 py-2 text-xs font-bold text-white hover:bg-amber-700 transition">
+                  Đăng thông báo
+                </button>
+
+                <button id="announcement-edit-btn" type="button" class="hidden rounded-xl bg-blue-700 px-3 py-2 text-xs font-bold text-white hover:bg-blue-800 transition">
+                  Sửa
+                </button>
+
+                <button id="announcement-delete-btn" type="button" class="hidden rounded-xl bg-rose-700 px-3 py-2 text-xs font-bold text-white hover:bg-rose-800 transition">
+                  Xóa
+                </button>
+
+                <button id="announcement-cancel-btn" type="button" class="rounded-xl bg-stone-200 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-300 transition">
+                  Đóng
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+      </div>
+      <!-- HẾT HÀNG CARD: SỰ KIỆN + THÔNG BÁO -->
+
+      <!-- GÓC ẢNH KÝ ỨC: CHIẾM TRỌN HÀNG RIÊNG -->
+      <div id="memory-album-section" class="col-span-full mt-4 w-full min-w-0 overflow-hidden rounded-2xl border border-amber-200/80 bg-white shadow-sm hover:shadow-md transition-shadow">
+
+        <!-- Tiêu đề và nút cập nhật -->
+        <div class="flex items-center justify-between gap-3 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100/50 p-4 border-b border-amber-100">
+          <div class="min-w-0">
+            <h3 class="text-base sm:text-lg font-extrabold text-amber-950 flex items-center gap-2">
+              <span class="p-1.5 bg-amber-200/60 rounded-lg text-amber-700"><i class="fa-solid fa-book-open"></i></span>
+              GÓC ẢNH KÝ ỨC
+            </h3>
+            <p class="mt-0.5 text-xs text-stone-500">
+              Lưu giữ những khoảnh khắc đáng nhớ của lớp mình
+            </p>
+          </div>
+
+          <button type="button" id="memory-album-update-btn" class="shrink-0 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-amber-700 active:scale-95">
+            <i class="fa-solid fa-plus mr-1"></i>Cập nhật
+          </button>
+        </div>
+
+        <!-- Quyển sách Album kỷ niệm -->
+        <div class="p-4 sm:p-6">
+
+          <div id="memory-album-intro" class="relative overflow-hidden rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-100/60 via-orange-50 to-amber-200/40 p-6 sm:p-8">
+
+            <!-- Hình minh họa bìa sách -->
+            <div id="memory-album-intro-cover" class="mx-auto max-w-sm">
+              <div class="relative overflow-hidden rounded-r-2xl rounded-l-md border-l-[8px] border-amber-900 bg-gradient-to-br from-amber-900 via-amber-800 to-yellow-950 p-6 sm:p-8 text-center text-amber-50 shadow-2xl transform hover:scale-105 transition-transform duration-300">
+
+                <div class="absolute inset-2 rounded-r-xl rounded-l-sm border border-amber-300/40 pointer-events-none"></div>
+
+                <div class="relative">
+                  <i class="fa-solid fa-book-open text-4xl text-amber-300 sm:text-5xl"></i>
+
+                  <p class="mt-4 text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] text-amber-200">
+                    Kỷ niệm một thời
+                  </p>
+
+                  <h4 class="mt-2 text-2xl font-black leading-tight sm:text-3xl tracking-wide text-amber-100">
+                    ALBUM<br>KỶ NIỆM
+                  </h4>
+
+                  <div class="mx-auto my-4 h-px w-24 bg-gradient-to-r from-transparent via-amber-300/70 to-transparent"></div>
+
+                  <p class="text-xs sm:text-sm font-semibold text-amber-100">
+                    Cựu học sinh Nguyễn Huệ 12/6
+                  </p>
+
+                  <p class="mt-1.5 text-[11px] italic text-amber-200/80">
+                    Mãi mãi một thời để nhớ
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p id="memory-album-summary" class="mt-5 text-center text-xs sm:text-sm text-amber-950 font-medium">
+              Nơi lưu giữ những bức ảnh và lời nhắn của tất cả thành viên lớp mình.
+            </p>
+
+            <div class="mt-5 text-center">
+              <button type="button" id="memory-album-open-btn" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-md transition hover:from-amber-700 hover:to-amber-600 active:scale-95">
+                <i class="fa-solid fa-book-open"></i>
+                Xem album
+              </button>
+            </div>
+          </div>
+
+          <!-- BIỂU MẪU QUẢN LÝ GÓC ẢNH KÝ ỨC -->
+          <div id="memory-album-form-panel" class="mt-5 hidden rounded-2xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5">
+
+            <div class="mb-4 flex items-center justify-between gap-3">
+              <h4 class="font-bold text-amber-950 text-sm">
+                <i class="fa-solid fa-images mr-2 text-amber-600"></i>CẬP NHẬT ẢNH ALBUM
+              </h4>
+
+              <button type="button" id="memory-album-form-close-btn" class="rounded-xl px-3 py-1.5 text-xs font-bold text-stone-600 hover:bg-white transition">
+                <i class="fa-solid fa-xmark mr-1"></i>Đóng
+              </button>
+            </div>
+
+            <form id="memory-album-form" class="space-y-4">
+
+              <!-- Chỉ Admin sử dụng danh sách này -->
+              <div id="memory-album-admin-member-wrap" class="hidden">
+                <label for="memory-album-member-select" class="mb-1 block text-xs font-bold text-stone-700">
+                  Thành viên quản lý ảnh
+                </label>
+
+                <select id="memory-album-member-select" class="w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500">
+                  <option value="">Ảnh của tôi</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="memory-album-photo-input" class="mb-1 block text-xs font-bold text-stone-700">
+                  Chọn ảnh
+                </label>
+
+                <input id="memory-album-photo-input" type="file" accept="image/*" class="block w-full rounded-xl border border-amber-200 bg-white p-2 text-xs" required>
+              </div>
+
+              <div>
+                <label for="memory-album-note-input" class="mb-1 block text-xs font-bold text-stone-700">
+                  Lời nhắn kỷ niệm
+                </label>
+
+                <textarea id="memory-album-note-input" rows="3" maxlength="500" placeholder="Ghi lại một kỷ niệm đáng nhớ..." class="w-full rounded-xl border border-amber-200 bg-white px-3.5 py-2 text-xs focus:ring-2 focus:ring-amber-500"></textarea>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button type="submit" id="memory-album-save-btn" class="rounded-xl bg-amber-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-amber-700">
+                  <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Lưu ảnh
+                </button>
+
+                <button type="button" id="memory-album-cancel-edit-btn" class="hidden rounded-xl border border-stone-300 bg-white px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-100">
+                  Hủy sửa
+                </button>
+              </div>
+
+              <p id="memory-album-form-status" class="text-xs font-medium" role="status" aria-live="polite"></p>
+            </form>
+
+            <div class="mt-6 border-t border-amber-200/80 pt-4">
+              <h5 class="mb-3 font-bold text-amber-950 text-xs">Bộ sưu tập ảnh của bạn</h5>
+
+              <div id="memory-album-manage-list" class="space-y-3">
+                <p class="text-xs text-stone-500 italic">
+                  Danh sách ảnh sẽ hiển thị tại đây.
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- HẾT BIỂU MẪU QUẢN LÝ -->
+
+          <!-- Khung album lật trang 3D: mặc định đóng -->
+          <div id="memory-album-book" class="hidden mt-5">
+
+            <!-- Tiêu đề và nút đóng -->
+            <div class="flex items-center justify-between gap-3 border-b border-amber-100 pb-3">
+              <h4 class="font-extrabold text-amber-950 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-amber-600"></i>
+                Album kỷ niệm
+              </h4>
+
+              <button type="button" id="memory-album-close-btn" class="rounded-xl px-3 py-1.5 text-xs font-bold text-stone-600 hover:bg-stone-100 transition">
+                <i class="fa-solid fa-xmark mr-1"></i>Đóng album
+              </button>
+            </div>
+
+            <!-- Khu vực sách 3D -->
+            <div id="memory-book-stage" class="mt-4">
+
+              <!-- Bìa sách đóng, dùng cho hiệu ứng mở -->
+              <div id="memory-book-cover" class="hidden">
+                <div class="memory-book-cover-content">
+                  <div class="memory-book-cover-title">ALBUM KỶ NIỆM</div>
+                  <div class="memory-book-cover-family">CỰU HỌC SINH 12/6</div>
+                  <div class="memory-book-cover-place">MÃI MÃI MỘT THỜI ĐỂ NHỚ</div>
+                </div>
+              </div>
+
+              <!-- Hai trang sách sẽ được JavaScript dựng tại đây -->
+              <div id="memory-book-open-view">
+                <div id="memory-book-container" aria-label="Các trang album kỷ niệm"></div>
+              </div>
+
+            </div>
+
+            <!-- Điều khiển lật trang -->
+            <div id="memory-book-controls" class="mt-5 flex flex-wrap items-center justify-center gap-2">
+
+              <button type="button" id="memory-album-prev-btn" disabled class="rounded-xl border border-amber-300 bg-white px-3.5 py-2 text-xs font-bold text-amber-900 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm">
+                <i class="fa-solid fa-chevron-left mr-1"></i>
+                <span class="hidden sm:inline">Trang trước</span>
+                <span class="sm:hidden">Trước</span>
+              </button>
+
+              <span id="memory-album-page-number" class="min-w-24 text-center text-xs font-bold text-amber-950 bg-amber-100/50 px-3 py-1.5 rounded-lg border border-amber-200">
+                Trang 0 / 0
+              </span>
+
+              <button type="button" id="memory-album-next-btn" disabled class="rounded-xl border border-amber-300 bg-white px-3.5 py-2 text-xs font-bold text-amber-900 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm">
+                <span class="hidden sm:inline">Trang sau</span>
+                <span class="sm:hidden">Sau</span>
+                <i class="fa-solid fa-chevron-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Hết album 3D -->
+
+      <!-- Yêu cầu khôi phục tài khoản - chỉ Admin -->
+      <div id="admin-recovery-panel" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-amber-200 mt-4">
+        <h4 class="font-bold text-stone-800 text-xs mb-3 flex items-center gap-2 uppercase tracking-wide">
+          <i class="fa-solid fa-user-shield text-amber-600 text-sm"></i>
+          Yêu Cầu Khôi Phục Tài Khoản
+        </h4>
+        <div id="admin-recovery-list" class="space-y-3">
+          <p class="text-xs text-stone-500 italic">Đang tải yêu cầu...</p>
+        </div>
+      </div>
+
     </div>
-
-  </div>
-
-  <!-- Điều khiển lật trang -->
-  <div id="memory-book-controls"
-       class="mt-4 flex flex-wrap items-center justify-center gap-2">
-
-    <button
-      type="button"
-      id="memory-album-prev-btn"
-      disabled
-      class="rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-bold text-amber-900 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">
-      <i class="fa-solid fa-chevron-left mr-1"></i>
-      <span class="hidden sm:inline">Trang trước</span>
-      <span class="sm:hidden">Trước</span>
-    </button>
-
-    <span id="memory-album-page-number"
-          class="min-w-24 text-center text-xs font-semibold text-amber-900">
-      Trang 0 / 0
-    </span>
-
-    <button
-      type="button"
-      id="memory-album-next-btn"
-      disabled
-      class="rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm font-bold text-amber-900 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">
-      <span class="hidden sm:inline">Trang sau</span>
-      <span class="sm:hidden">Sau</span>
-      <i class="fa-solid fa-chevron-right ml-1"></i>
-    </button>
-  </div>
-</div>
-</div>
-</div>
-<!-- Hết album 3D -->
-
-
-<!-- Yêu cầu khôi phục tài khoản - chỉ Admin -->
-<div id="admin-recovery-panel" class="hidden bg-white rounded-2xl p-4 shadow-sm border border-amber-200">
-  <h4 class="font-bold text-stone-800 text-sm mb-3 flex items-center gap-2">
-    <i class="fa-solid fa-user-shield text-amber-600"></i>
-    Yêu Cầu Khôi Phục Tài Khoản
-  </h4>
-  <div id="admin-recovery-list" class="space-y-3">
-    <p class="text-xs text-stone-500">Đang tải yêu cầu...</p>
-  </div>
-</div>
-
-
-    </aside>
-  </div>
-</main>
-
+  </main>
 
   <!-- Navigation Bar Mobile -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 px-3 py-2 flex justify-around z-40 shadow-lg">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200/80 px-3 py-2 flex justify-around z-40 shadow-lg">
     <button onclick="switchTab('feed')" id="m-nav-feed" class="mobile-nav-btn text-amber-600 flex flex-col items-center">
-      <i class="fa-solid fa-newspaper text-lg"></i><span class="text-[10px] font-medium mt-0.5">Bảng Tin</span>
+      <i class="fa-solid fa-newspaper text-base"></i><span class="text-[10px] font-semibold mt-0.5">Bảng Tin</span>
     </button>
     <button onclick="switchTab('chat')" id="m-nav-chat" class="mobile-nav-btn text-stone-400 flex flex-col items-center">
-      <i class="fa-solid fa-comments text-lg"></i><span class="text-[10px] font-medium mt-0.5">Chat Lớp</span>
+      <i class="fa-solid fa-comments text-base"></i><span class="text-[10px] font-semibold mt-0.5">Chat Lớp</span>
     </button>
     <button onclick="switchTab('events')" id="m-nav-events" class="mobile-nav-btn text-stone-400 flex flex-col items-center">
-      <i class="fa-solid fa-calendar-days text-lg"></i><span class="text-[10px] font-medium mt-0.5">Họp Lớp</span>
+      <i class="fa-solid fa-calendar-days text-base"></i><span class="text-[10px] font-semibold mt-0.5">Họp Lớp</span>
     </button>
     <button onclick="switchTab('directory')" id="m-nav-directory" class="mobile-nav-btn text-stone-400 flex flex-col items-center">
-      <i class="fa-solid fa-address-book text-lg"></i><span class="text-[10px] font-medium mt-0.5">Danh Bạ</span>
+      <i class="fa-solid fa-address-book text-base"></i><span class="text-[10px] font-semibold mt-0.5">Danh Bạ</span>
     </button>
   </nav>
 
   <!-- Auth Modal -->
-  <div id="auth-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+  <div id="auth-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border border-stone-100">
+      <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
       <div class="text-center mb-6">
-        <h3 class="text-xl font-bold text-stone-800" id="auth-modal-title">Đăng Nhập Thành Viên</h3>
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-2 text-xl">
+          <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <h3 class="text-xl font-extrabold text-stone-900" id="auth-modal-title">Đăng Nhập Thành Viên</h3>
         <p class="text-xs text-stone-500 mt-1">Kết nối lại với tập thể lớp học xưa</p>
       </div>
       <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div id="name-field" class="hidden">
-          <label class="block text-xs font-semibold text-stone-700 mb-1">Họ và Tên</label>
-          <input type="text" id="auth-name" placeholder="Nguyễn Văn A" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-amber-500">
+          <label class="block text-xs font-bold text-stone-700 mb-1">Họ và Tên</label>
+          <input type="text" id="auth-name" placeholder="Nguyễn Văn A" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-stone-700 mb-1">Email</label>
-          <input type="email" id="auth-email" required placeholder="baidang@gmail.com" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-amber-500">
+          <label class="block text-xs font-bold text-stone-700 mb-1">Email</label>
+          <input type="email" id="auth-email" required placeholder="baidang@gmail.com" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-stone-700 mb-1">Mật khẩu</label>
-          <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:ring-2 focus:ring-amber-500">
+          <label class="block text-xs font-bold text-stone-700 mb-1">Mật khẩu</label>
+          <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
         </div>
-        
-        <button type="submit" id="auth-submit-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-md shadow-amber-200">Đăng Nhập</button>
-       
-        <div id="forgot-password-wrap" class="flex items-center justify-between gap-3">
+
+        <button type="submit" id="auth-submit-btn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition text-xs sm:text-sm shadow-md shadow-amber-600/20 active:scale-95">Đăng Nhập</button>
+
+        <div id="forgot-password-wrap" class="flex items-center justify-between gap-3 pt-1">
           <button type="button" onclick="openForgotAccount()" class="text-xs text-stone-600 hover:text-amber-700 hover:underline font-medium">Quên tài khoản?</button>
           <button type="button" onclick="resetPassword()" class="text-xs text-amber-700 hover:underline font-medium">Quên mật khẩu?</button>
         </div>
-
       </form>
-      <div class="mt-4 text-center">
-        <button id="toggle-auth-mode-btn" onclick="toggleAuthMode()" class="text-xs text-amber-600 hover:underline font-medium">Chưa có tài khoản? Đăng ký ngay</button>
+      <div class="mt-4 text-center border-t border-stone-100 pt-3">
+        <button id="toggle-auth-mode-btn" onclick="toggleAuthMode()" class="text-xs text-amber-600 hover:underline font-semibold">Chưa có tài khoản? Đăng ký ngay</button>
       </div>
     </div>
   </div>
 
   <!-- Event Create Modal -->
-  <div id="event-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-      <button onclick="toggleEventModal(false)" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-      <h3 class="text-lg font-bold text-stone-800 mb-4">Tạo Sự Kiện Họp Lớp / Gặp Mặt</h3>
+  <div id="event-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border border-stone-100">
+      <button onclick="toggleEventModal(false)" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-lg font-bold text-stone-900 mb-4">Tạo Sự Kiện Họp Lớp / Gặp Mặt</h3>
       <form id="create-event-form" onsubmit="handleCreateEvent(event)" class="space-y-3">
-        <input type="text" id="event-title" required placeholder="Tên cuộc hẹn (VD: Họp Lớp Kỷ Niệm 10 Năm)" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm">
+        <input type="text" id="event-title" required placeholder="Tên cuộc hẹn (VD: Họp Lớp Kỷ Niệm 10 Năm)" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
         <div class="grid grid-cols-2 gap-3">
-          <input type="date" id="event-date" required class="px-3 py-2 rounded-xl border border-stone-200 text-xs">
-          <input type="time" id="event-time" required class="px-3 py-2 rounded-xl border border-stone-200 text-xs">
+          <input type="date" id="event-date" required class="px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-2 focus:ring-amber-500">
+          <input type="time" id="event-time" required class="px-3 py-2 rounded-xl border border-stone-200 text-xs focus:ring-2 focus:ring-amber-500">
         </div>
-        <input type="text" id="event-location" required placeholder="Địa điểm (Nhà hàng, Quán cafe...)" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm">
-        <textarea id="event-desc" rows="3" placeholder="Ghi chú chi tiết cho các bạn..." class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm resize-none"></textarea>
-        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-sm">Tạo Sự Kiện</button>
+        <input type="text" id="event-location" required placeholder="Địa điểm (Nhà hàng, Quán cafe...)" class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
+        <textarea id="event-desc" rows="3" placeholder="Ghi chú chi tiết cho các bạn..." class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs sm:text-sm resize-none focus:ring-2 focus:ring-amber-500"></textarea>
+        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition active:scale-95">Tạo Sự Kiện</button>
       </form>
     </div>
   </div>
 
-  
-<!-- Profile Edit Modal -->
-<div id="profile-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-    <button type="button" onclick="closeProfileModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-    <h3 class="text-lg font-bold text-stone-800 mb-4">Cập Nhật Hồ Sơ Danh Bạ</h3>
-    <form id="profile-form" onsubmit="handleSaveProfile(event)" class="space-y-3">
-      <div class="flex flex-col items-center mb-5">
-        <img id="prof-avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Member" alt="Ảnh đại diện" class="w-24 h-24 rounded-full object-cover border-4 border-amber-100 shadow-sm">
-        <label for="prof-avatar" class="mt-3 px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-sm font-semibold cursor-pointer">
-          <i class="fa-solid fa-camera mr-2"></i>Chọn ảnh đại diện
-        </label>
-        <input type="file" id="prof-avatar" accept="image/*" class="hidden" onchange="previewProfileAvatar(event)">
-        <p id="prof-avatar-status" class="text-xs text-stone-500 mt-2 text-center">Chọn ảnh JPG, PNG hoặc WebP.</p>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-stone-700 mb-1">Công việc / Chức danh hiện tại</label>
-        <input type="text" id="prof-job" placeholder="VD: Kỹ sư phần mềm, Giáo viên..." class="w-full px-4 py-2 rounded-xl border border-stone-200 text-sm">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-stone-700 mb-1">Nơi ở hiện tại</label>
-        <input type="text" id="prof-location" placeholder="VD: TP. Hồ Chí Minh, Hà Nội, Đà Nẵng" class="w-full px-4 py-2 rounded-xl border border-stone-200 text-sm">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-stone-700 mb-1">Số điện thoại / Zalo</label>
-        <input type="text" id="prof-phone" placeholder="0905xxxxxx" class="w-full px-4 py-2 rounded-xl border border-stone-200 text-sm">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-stone-700 mb-1">Link Facebook cá nhân</label>
-        <input type="url" id="prof-fb" placeholder="https://facebook.com/username" class="w-full px-4 py-2 rounded-xl border border-stone-200 text-sm">
-      </div>
-      <button id="prof-save-btn" type="submit" class="w-full bg-stone-800 hover:bg-stone-900 text-white font-bold py-2.5 rounded-xl text-sm">Lưu Thay Đổi</button>
-    </form>
-  </div>
-</div>
-
-
-<script>
-(() => {
-  const img = document.getElementById('hero-background');
-  if (!img) return;
-  let current = 1;
-  setInterval(() => {
-    const next = current + 1;
-    const probe = new Image();
-    probe.onload = () => {
-      current = next;
-      img.style.opacity = '0';
-      setTimeout(() => {
-        img.src = probe.src;
-        img.style.opacity = '1';
-      }, 400);
-    };
-    probe.onerror = () => {
-      current = 1;
-      if (!img.src.endsWith('/store/anh1.jpg')) {
-        img.src = 'store/anh1.jpg';
-      }
-    };
-    probe.src = `store/anh${next}.jpg`;
-  }, 5000);
-})();
-</script>
-
-<!-- ===== FOOTER CỰU HỌC SINH 12/6 NGUYỄN HUỆ ===== -->
-<footer id="site-footer" class="site-footer">
-  <div class="footer-inner">
-
-    <div class="footer-brand">
-      <div class="footer-emblem">
-        <i class="fa-solid fa-graduation-cap"></i>
-      </div>
-
-      <h2>HỘI CỰU HỌC SINH 12/6 NGUYỄN HUỆ</h2>
-      <p class="footer-slogan">
-        Kết nối tình bạn · Lưu giữ kỷ niệm · Tiếp nối nghĩa tình
-      </p>
-      <div class="footer-ornament">
-        <span></span>
-        <i class="fa-solid fa-star"></i>
-        <span></span>
-      </div>
+  <!-- Profile Edit Modal -->
+  <div id="profile-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto border border-stone-100">
+      <button type="button" onclick="closeProfileModal()" class="absolute top-4 right-4 text-stone-400 hover:text-stone-600 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-lg font-bold text-stone-900 mb-4">Cập Nhật Hồ Sơ Danh Bạ</h3>
+      <form id="profile-form" onsubmit="handleSaveProfile(event)" class="space-y-3">
+        <div class="flex flex-col items-center mb-5">
+          <img id="prof-avatar-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Member" alt="Ảnh đại diện" class="w-24 h-24 rounded-full object-cover border-4 border-amber-100 shadow-md">
+          <label for="prof-avatar" class="mt-3 px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold cursor-pointer transition">
+            <i class="fa-solid fa-camera mr-2"></i>Chọn ảnh đại diện
+          </label>
+          <input type="file" id="prof-avatar" accept="image/*" class="hidden" onchange="previewProfileAvatar(event)">
+          <p id="prof-avatar-status" class="text-[11px] text-stone-400 mt-2 text-center">Chọn ảnh JPG, PNG hoặc WebP.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Công việc / Chức danh hiện tại</label>
+          <input type="text" id="prof-job" placeholder="VD: Kỹ sư phần mềm, Giáo viên..." class="w-full px-4 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Nơi ở hiện tại</label>
+          <input type="text" id="prof-location" placeholder="VD: TP. Hồ Chí Minh, Hà Nội, Đà Nẵng" class="w-full px-4 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Số điện thoại / Zalo</label>
+          <input type="text" id="prof-phone" placeholder="0905xxxxxx" class="w-full px-4 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Link Facebook cá nhân</label>
+          <input type="url" id="prof-fb" placeholder="https://facebook.com/username" class="w-full px-4 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm focus:ring-2 focus:ring-amber-500">
+        </div>
+        <button id="prof-save-btn" type="submit" class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition active:scale-95">Lưu Thay Đổi</button>
+      </form>
     </div>
+  </div>
 
-    <section class="footer-editorial" aria-labelledby="footer-editorial-title">
-      <div class="footer-section-heading">
-        <p class="footer-eyebrow">NHỮNG NGƯỜI GÓP SỨC</p>
-        <h3 id="footer-editorial-title">BAN BIÊN TẬP</h3>
-        <p class="footer-section-description">
-          Cùng gìn giữ và lan tỏa những kỷ niệm đẹp của lớp mình.
+  <script>
+  (() => {
+    const img = document.getElementById('hero-background');
+    if (!img) return;
+    let current = 1;
+    setInterval(() => {
+      const next = current + 1;
+      const probe = new Image();
+      probe.onload = () => {
+        current = next;
+        img.style.opacity = '0';
+        setTimeout(() => {
+          img.src = probe.src;
+          img.style.opacity = '1';
+        }, 400);
+      };
+      probe.onerror = () => {
+        current = 1;
+        if (!img.src.endsWith('/store/anh1.jpg')) {
+          img.src = 'store/anh1.jpg';
+        }
+      };
+      probe.src = `store/anh${next}.jpg`;
+    }, 5000);
+  })();
+  </script>
+
+  <!-- ===== FOOTER CỰU HỌC SINH 12/6 NGUYỄN HUỆ ===== -->
+  <footer id="site-footer" class="site-footer">
+    <div class="footer-inner">
+
+      <div class="footer-brand">
+        <div class="footer-emblem">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+
+        <h2>HỘI CỰU HỌC SINH 12/6 NGUYỄN HUỆ</h2>
+        <p class="footer-slogan">
+          Kết nối tình bạn · Lưu giữ kỷ niệm · Tiếp nối nghĩa tình
         </p>
+        <div class="footer-ornament">
+          <span></span>
+          <i class="fa-solid fa-star"></i>
+          <span></span>
+        </div>
       </div>
 
-      <!-- Danh sách thành viên được JavaScript tải vào đây -->
-      <div id="editorial-board-list" class="editorial-board-list">
-        <p class="footer-loading">Đang tải danh sách Ban Biên Tập...</p>
-      </div>
+      <section class="footer-editorial" aria-labelledby="footer-editorial-title">
+        <div class="footer-section-heading">
+          <p class="footer-eyebrow">NHỮNG NGƯỜI GÓP SỨC</p>
+          <h3 id="footer-editorial-title">BAN BIÊN TẬP</h3>
+          <p class="footer-section-description">
+            Cùng gìn giữ và lan tỏa những kỷ niệm đẹp của lớp mình.
+          </p>
+        </div>
 
-      <!-- Chỉ admin đã đăng nhập mới được thấy các nút quản lý -->
-      <div id="editorial-admin-controls" class="editorial-admin-controls hidden">
-        <button type="button" id="editorial-add-btn" class="footer-admin-btn">
-          <i class="fa-solid fa-user-plus"></i>
-          Thêm thành viên
-        </button>
-      </div>
+        <!-- Danh sách thành viên được JavaScript tải vào đây -->
+        <div id="editorial-board-list" class="editorial-board-list">
+          <p class="footer-loading text-xs italic text-amber-200/70">Đang tải danh sách Ban Biên Tập...</p>
+        </div>
 
-      <!-- Form quản lý sẽ được nối với Firestore ở bước tiếp theo -->
-      <div id="editorial-form-panel" class="editorial-form-panel hidden">
-        <label for="editorial-member-search">Tìm thành viên trong danh sách</label>
-        <input
-          id="editorial-member-search"
-          type="search"
-          placeholder="Nhập tên thành viên..."
-          autocomplete="off"
-        />
-
-        <div id="editorial-member-options" class="editorial-member-options"></div>
-
-        <div class="editorial-form-actions">
-          <button type="button" id="editorial-save-btn" class="footer-admin-btn">
-            <i class="fa-solid fa-check"></i>
+        <!-- Chỉ admin đã đăng nhập mới được thấy các nút quản lý -->
+        <div id="editorial-admin-controls" class="editorial-admin-controls hidden mt-3">
+          <button type="button" id="editorial-add-btn" class="footer-admin-btn">
+            <i class="fa-solid fa-user-plus"></i>
             Thêm thành viên
-          </button>
-          <button type="button" id="editorial-cancel-btn" class="footer-cancel-btn">
-            Hủy
           </button>
         </div>
 
-        <p id="editorial-form-status" role="status" aria-live="polite"></p>
+        <!-- Form quản lý sẽ được nối với Firestore ở bước tiếp theo -->
+        <div id="editorial-form-panel" class="editorial-form-panel hidden mt-3 text-left bg-stone-900 p-4 rounded-xl border border-amber-500/30">
+          <label for="editorial-member-search" class="text-xs font-bold text-amber-300 mb-1 block">Tìm thành viên trong danh sách</label>
+          <input id="editorial-member-search" type="search" placeholder="Nhập tên thành viên..." autocomplete="off" class="w-full px-3 py-2 rounded-lg bg-stone-800 text-xs text-white border border-stone-700 focus:outline-none focus:ring-1 focus:ring-amber-500 mb-2">
+
+          <div id="editorial-member-options" class="editorial-member-options max-h-36 overflow-y-auto space-y-1 mb-3"></div>
+
+          <div class="editorial-form-actions flex gap-2">
+            <button type="button" id="editorial-save-btn" class="footer-admin-btn">
+              <i class="fa-solid fa-check"></i>
+              Thêm thành viên
+            </button>
+            <button type="button" id="editorial-cancel-btn" class="footer-cancel-btn">
+              Hủy
+            </button>
+          </div>
+
+          <p id="editorial-form-status" role="status" aria-live="polite" class="text-xs mt-2"></p>
+        </div>
+      </section>
+
+      <nav class="footer-quick-links" aria-label="Liên kết cuối trang">
+        <a href="#" onclick="switchTab('feed'); return false;">Bảng tin</a>
+        <span>✦</span>
+        <a href="#" onclick="switchTab('chat'); return false;">Chat lớp</a>
+        <span>✦</span>
+        <a href="#" onclick="switchTab('events'); return false;">Sự kiện</a>
+        <span>✦</span>
+        <a href="#" onclick="switchTab('directory'); return false;">Danh bạ</a>
+      </nav>
+
+      <div class="footer-bottom">
+        <p class="footer-author">Written by: <strong>Trường Văn Thành</strong></p>
+        <p class="footer-version">Version 1.0</p>
+        <p class="footer-copyright">
+          © 2026 Hội Cựu Học Sinh 12/6 Nguyễn Huệ
+        </p>
+        <p class="footer-thanks">Một thời áo trắng — Một đời nghĩa tình.</p>
       </div>
-    </section>
 
-    <nav class="footer-quick-links" aria-label="Liên kết cuối trang">
-      <a href="#" onclick="switchTab('feed'); return false;">Bảng tin</a>
-      <span>✦</span>
-      <a href="#" onclick="switchTab('chat'); return false;">Chat lớp</a>
-      <span>✦</span>
-      <a href="#" onclick="switchTab('events'); return false;">Sự kiện</a>
-      <span>✦</span>
-      <a href="#" onclick="switchTab('directory'); return false;">Danh bạ</a>
-    </nav>
+      <button type="button" id="footer-back-to-top" class="footer-back-to-top" aria-label="Lên đầu trang" title="Lên đầu trang" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <i class="fa-solid fa-arrow-up"></i>
+      </button>
 
-    <div class="footer-bottom">
-      <p class="footer-author">Written by: <strong>Trường Văn Thành</strong></p>
-      <p class="footer-version">Version 1.0</p>
-      <p class="footer-copyright">
-        © 2026 Hội Cựu Học Sinh 12/6 Nguyễn Huệ
-      </p>
-      <p class="footer-thanks">Một thời áo trắng — Một đời nghĩa tình.</p>
     </div>
-
-    <button
-      type="button"
-      id="footer-back-to-top"
-      class="footer-back-to-top"
-      aria-label="Lên đầu trang"
-      title="Lên đầu trang"
-    >
-      <i class="fa-solid fa-arrow-up"></i>
-    </button>
-
-  </div>
-</footer>
-<!-- ===== HẾT FOOTER ===== -->
+  </footer>
+  <!-- ===== HẾT FOOTER ===== -->
 
 </body>
 </html>

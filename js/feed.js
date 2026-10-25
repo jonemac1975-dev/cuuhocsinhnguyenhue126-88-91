@@ -497,6 +497,13 @@ window.closePostMedia = function() {
   document.body.style.overflow = '';
 };
 
+
+window.closePostComposer = function() {
+  const composer = document.getElementById('feed-composer');
+  if (composer) composer.classList.add('hidden');
+};
+
+
 window.handleCreatePost = handleCreatePost;
 window.setPresetImage = setPresetImage;
 window.toggleLike = toggleLike;

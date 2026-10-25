@@ -109,8 +109,9 @@ async function callLiveApi(action) {
     throw new Error(data.error || `Lỗi Live API (${response.status}).`);
   }
 
-  if (!data.token || !data.serverUrl || !data.roomName) {
-  console.error('LiveKit response check:', {
+
+    if (action !== 'end' && (!data.token || !data.serverUrl || !data.roomName)) {
+    console.error('LiveKit response check:', {
     action,
     status: response.status,
     fields: Object.keys(data),
@@ -122,9 +123,9 @@ async function callLiveApi(action) {
       message: data.message
     }
   });
-
   throw new Error('Worker chưa trả về đủ thông tin kết nối LiveKit.');
 }
+
 
   return data;
 }
@@ -371,6 +372,7 @@ export async function joinLive() {
   }
 }
 
+
 export async function endLive() {
   if (liveBusy || !liveRoom || liveRole !== 'host') return;
 
@@ -383,18 +385,31 @@ export async function endLive() {
   setLiveStatus('Đang kết thúc buổi Live...');
 
   try {
-    // Yêu cầu Worker kết thúc buổi Live trên máy chủ trước.
-    await callLiveApi('end');
+    // Kết thúc buổi Live trên Worker trước.
+    const result = await callLiveApi('end');
+
+    if (!result.success) {
+      throw new Error(result.message || 'Worker chưa xác nhận kết thúc Live.');
+    }
 
     const room = liveRoom;
     liveRoom = null;
     liveRole = null;
 
-    if (room) await room.disconnect();
+    if (room) {
+      await room.disconnect();
+    }
 
     clearLiveVideoGrid();
     showLiveVideoContainer(false);
+
+    // Khôi phục trạng thái các nút Live.
+    setLiveButtons(null);
     setLiveStatus('Buổi Live đã kết thúc.');
+
+    getLiveElement('live-section')?.classList.add('hidden');
+    window.closePostComposer?.();
+
   } catch (error) {
     console.error('End Live error:', error);
     setLiveStatus(error.message || 'Không thể kết thúc Live.');
@@ -404,6 +419,7 @@ export async function endLive() {
     setLiveButtons(liveRole);
   }
 }
+
 
 export async function closeLivePanel() {
   if (liveBusy) return;
