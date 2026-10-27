@@ -1280,3 +1280,43 @@ body {
 }
 /* ===== HẾT CSS FOOTER ===== */
 
+
+.private-call-video-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.private-call-video-panel[hidden] {
+  display: none;
+}
+
+.private-call-video-item {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #111827;
+  color: white;
+  text-align: center;
+}
+
+.private-call-video-item video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #000;
+}
+
+.private-call-video-item span {
+  display: block;
+  padding: 6px;
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .private-call-video-panel {
+    grid-template-columns: 1fr;
+  }
+}
