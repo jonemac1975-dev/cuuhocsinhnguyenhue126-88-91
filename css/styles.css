@@ -1320,3 +1320,35 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* Hiện nút thông báo ở footer trên PC */
+.notification-toggle-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .notification-toggle-desktop {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 40px 0 0;
+    padding: 0 0 4px;
+  }
+}
+
+.notification-toggle-desktop .notification-toggle {
+  padding: 0px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: Grey;
+  color: yellow;
+}
+
+.notification-toggle-desktop .notification-toggle.is-enabled {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}

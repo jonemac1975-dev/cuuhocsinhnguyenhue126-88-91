@@ -1,8 +1,8 @@
 
 import { state, escapeHtml, requireMemberAccess } from './app-state.js';
 import { db, auth } from './firebase-config.js';
-import { collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, doc, updateDoc, arrayUnion, arrayRemove, deleteField, getDoc, setDoc, where, deleteDoc} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-
+import { collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp, doc, updateDoc, arrayUnion, arrayRemove, deleteField, getDoc, setDoc, where, deleteDoc, runTransaction} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 
 let chatUnsubscribe = null;
@@ -24,6 +24,17 @@ let privateCallLocalStream = null;
 let privateCallRemoteAudio = null;
 let privateCallIceUnsubscribe = [];
 let privateCallBusy = false;
+export let privateCallIncomingUnsubscribe = null;
+export let privateCallAuthUid = null;
+let privateCallNoticeTimer = null;
+let privateCallTimeout = null;
+
+function clearPrivateCallTimeout() {
+  if (privateCallTimeout) {
+    clearTimeout(privateCallTimeout);
+    privateCallTimeout = null;
+  }
+}
 
 function setPrivateChatMediaStatus(message, type = '') {
   const status = document.getElementById('private-chat-media-status');
@@ -584,15 +595,50 @@ export async function handleSendMessage(e) {
       };
     }
 
-    await addDoc(collection(db, 'chatMessages'), {
-      senderId: user.uid,
-      senderName: profile.displayName || 'Thành viên',
-      avatar: profile.photoURL || '',
-      text,
-      createdAt: serverTimestamp(),
-      replyTo: replyingTo ? { ...replyingTo } : null,
-      ...mediaData
-    });
+const messageRef = await addDoc(collection(db, 'chatMessages'), {
+  senderId: user.uid,
+  senderName: profile.displayName || 'Thành viên',
+  avatar: profile.photoURL || '',
+  text,
+  createdAt: serverTimestamp(),
+  replyTo: replyingTo ? { ...replyingTo } : null,
+  ...mediaData
+});
+
+// Gửi thông báo chat chung; lỗi thông báo không làm mất tin nhắn đã gửi.
+try {
+  const idToken = await user.getIdToken();
+
+  const notifyResponse = await fetch(
+    'https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/group-chat/notify',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify({
+        messageId: messageRef.id
+      })
+    }
+  );
+
+  if (!notifyResponse.ok) {
+    console.warn(
+      '[FCM] Chưa gửi được thông báo chat chung:',
+      notifyResponse.status,
+      await notifyResponse.text()
+    );
+  } else {
+    console.log(
+      '[FCM] Kết quả thông báo chat chung:',
+      await notifyResponse.json()
+    );
+  }
+} catch (notifyError) {
+  console.warn('[FCM] Lỗi thông báo chat chung:', notifyError);
+}
+
 
     if (media) {
       setChatMediaStatus(
@@ -979,9 +1025,7 @@ async function togglePrivateChatLike(messageId) {
 
 async function recallPrivateChatMessage(messageId) {
   const user = auth.currentUser;
-
   if (!user || !privateChatId || !messageId) return;
-
   try {
     const messageRef = doc(
       db,
@@ -1049,17 +1093,52 @@ async function recallPrivateChatMessage(messageId) {
 }
 
 
-function updatePrivateCallUI(message, buttons = {}) {
-  const status = document.getElementById('private-call-status');
-  const answer = document.getElementById('private-call-answer');
-  const reject = document.getElementById('private-call-reject');
-  const end = document.getElementById('private-call-end');
 
-  if (status) status.textContent = message;
-  if (answer) answer.classList.toggle('hidden', !buttons.answer);
-  if (reject) reject.classList.toggle('hidden', !buttons.reject);
-  if (end) end.classList.toggle('hidden', !buttons.end);
+
+function updatePrivateCallUI(message, buttons = {}) {
+  const globalPanel = document.getElementById('private-call-global-panel');
+  const globalStatus = document.getElementById('private-call-global-status');
+
+  if (privateCallNoticeTimer) {
+    clearTimeout(privateCallNoticeTimer);
+    privateCallNoticeTimer = null;
+  }
+
+  if (globalStatus) {
+    globalStatus.textContent = message || '';
+  }
+
+  const activeCall =
+    Boolean(buttons.answer || buttons.reject || buttons.end);
+
+  if (globalPanel) {
+    globalPanel.classList.toggle('hidden', !message);
+  }
+
+  [
+    ['private-call-global-answer', buttons.answer],
+    ['private-call-global-reject', buttons.reject],
+    ['private-call-global-end', buttons.end]
+  ].forEach(([id, visible]) => {
+    const button = document.getElementById(id);
+    if (button) button.classList.toggle('hidden', !visible);
+  });
+
+  // Chỉ tự đóng khi cuộc gọi đã kết thúc hoặc bị từ chối.
+  const isFinished =
+    /đã từ chối cuộc gọi|cuộc gọi đã kết thúc|đã hủy cuộc gọi|đã hủy cuộc gọi video/i
+      .test(message || '');
+
+  if (isFinished && !activeCall) {
+    privateCallNoticeTimer = setTimeout(() => {
+      if (globalPanel) globalPanel.classList.add('hidden');
+      if (globalStatus) globalStatus.textContent = '';
+      privateCallNoticeTimer = null;
+    }, 4000);
+  }
 }
+
+
 
 
 function getPrivateCallChatParticipants() {
@@ -1095,36 +1174,52 @@ function createPrivateCallPeerConnection(callId, remoteDescriptionReady = false)
     document.body.appendChild(privateCallRemoteAudio);
   }
 
-  pc.ontrack = async (event) => {
-  const stream = event.streams?.[0];
-  if (!stream) return;
+    pc.ontrack = async (event) => {
+    const stream = event.streams?.[0];
+    if (!stream) return;
 
-  const remoteAudio = document.getElementById('private-call-remote-audio');
-  const remoteVideo = document.getElementById('private-call-remote-video');
+    const remoteAudio = document.getElementById('private-call-remote-audio');
 
-  if (remoteAudio) {
-    remoteAudio.srcObject = stream;
+    if (remoteAudio) {
+      remoteAudio.srcObject = stream;
 
-    try {
-      await remoteAudio.play();
-    } catch (error) {
-      console.warn('Chưa phát được âm thanh từ cuộc gọi:', error);
-    }
-  }
-
-  if (remoteVideo && stream.getVideoTracks().length > 0) {
-    remoteVideo.srcObject = stream;
-
-    try {
-      await remoteVideo.play();
-    } catch (error) {
-      console.warn('Chưa phát được video từ cuộc gọi:', error);
+      try {
+        await remoteAudio.play();
+      } catch (error) {
+        console.warn('Chưa phát được âm thanh từ cuộc gọi:', error);
+      }
     }
 
-    const videoPanel = document.getElementById('private-call-video-panel');
-    if (videoPanel) videoPanel.hidden = false;
-  }
-};
+    if (stream.getVideoTracks().length > 0) {
+      const remoteVideoIds = [
+        'private-call-remote-video',
+        'private-call-global-remote-video'
+      ];
+
+      for (const id of remoteVideoIds) {
+        const remoteVideo = document.getElementById(id);
+        if (!remoteVideo) continue;
+
+        remoteVideo.srcObject = stream;
+
+        try {
+          await remoteVideo.play();
+        } catch (error) {
+          console.warn(`Chưa phát được video từ cuộc gọi (${id}):`, error);
+        }
+      }
+
+      const videoPanelIds = [
+        'private-call-video-panel',
+        'private-call-global-video-panel'
+      ];
+
+      for (const id of videoPanelIds) {
+        const panel = document.getElementById(id);
+        if (panel) panel.hidden = false;
+      }
+    }
+  };
 
   pc.onicecandidate = async (event) => {
     if (!event.candidate || !privateCallDocId) return;
@@ -1166,37 +1261,108 @@ function createPrivateCallPeerConnection(callId, remoteDescriptionReady = false)
 }
 
 
+
+
 async function addPrivateCallLocalAudio(pc, withVideo = false) {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error('Trình duyệt không hỗ trợ microphone/camera hoặc cần HTTPS.');
   }
 
-  privateCallLocalStream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: withVideo ? { facingMode: 'user' } : false
-  });
+  let stream;
 
-  privateCallLocalStream.getTracks().forEach((track) => {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: withVideo ? { facingMode: 'user' } : false
+    });
+  } catch (error) {
+    console.error('[CALL DEVICE ERROR]', {
+      name: error.name,
+      message: error.message,
+      withVideo,
+      devices: await navigator.mediaDevices.enumerateDevices()
+        .then(list => list.map(d => ({
+          kind: d.kind,
+          label: d.label,
+          deviceId: d.deviceId ? 'available' : 'empty'
+        })))
+        .catch(() => [])
+    });
+
+    const cameraUnavailable =
+      error.name === 'NotFoundError' ||
+      error.name === 'OverconstrainedError' ||
+      error.name === 'DevicesNotFoundError';
+
+    if (!withVideo || !cameraUnavailable) {
+      throw error;
+    }
+
+    const useAudioOnly = window.confirm(
+      'Không tìm thấy camera hoặc camera không khả dụng. Bạn có muốn chuyển sang gọi thoại không?'
+    );
+
+    if (!useAudioOnly) {
+      throw new Error('Bạn đã hủy cuộc gọi video vì không có camera.');
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    });
+
+    if (privateCallDocId) {
+      await updateDoc(doc(db, 'privateCalls', privateCallDocId), {
+        callType: 'audio',
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    updatePrivateCallUI('📞 Không có camera. Đang chuyển sang gọi thoại...');
+  }
+
+  privateCallLocalStream = stream;
+
+  privateCallLocalStream.getTracks().forEach(track => {
     pc.addTrack(track, privateCallLocalStream);
   });
 
-  if (withVideo) {
-    const localVideo = document.getElementById('private-call-local-video');
-    const videoPanel = document.getElementById('private-call-video-panel');
+  const hasVideo = privateCallLocalStream.getVideoTracks().length > 0;
 
-    if (localVideo) {
-      localVideo.srcObject = privateCallLocalStream;
+   if (hasVideo) {
+    const localVideoIds = [
+      'private-call-local-video',
+      'private-call-global-local-video'
+    ];
+
+    const videoPanelIds = [
+      'private-call-video-panel',
+      'private-call-global-video-panel'
+    ];
+
+    for (const id of localVideoIds) {
+      const video = document.getElementById(id);
+      if (!video) continue;
+
+      video.srcObject = privateCallLocalStream;
 
       try {
-        await localVideo.play();
+        await video.play();
       } catch (error) {
-        console.warn('Không phát được video camera của bạn:', error);
+        console.warn(`Không phát được video camera (${id}):`, error);
       }
     }
 
-    if (videoPanel) videoPanel.hidden = false;
+    for (const id of videoPanelIds) {
+      const panel = document.getElementById(id);
+      if (panel) panel.hidden = false;
+    }
   }
+
+  return hasVideo;
 }
+
+
 
 
 
@@ -1327,38 +1493,146 @@ async function cleanupPrivateCall() {
     privateCallRemoteAudio.srcObject = null;
   }
 
-const localVideo = document.getElementById('private-call-local-video');
-const remoteVideo = document.getElementById('private-call-remote-video');
-const videoPanel = document.getElementById('private-call-video-panel');
+  const localVideoIds = [
+    'private-call-local-video',
+    'private-call-global-local-video'
+  ];
 
-if (localVideo) localVideo.srcObject = null;
-if (remoteVideo) remoteVideo.srcObject = null;
-if (videoPanel) videoPanel.hidden = true;
+  const remoteVideoIds = [
+    'private-call-remote-video',
+    'private-call-global-remote-video'
+  ];
 
-  privateCallDocId = null;
-  privateCallBusy = false;
+  const videoPanelIds = [
+    'private-call-video-panel',
+    'private-call-global-video-panel'
+  ];
+
+  for (const id of localVideoIds) {
+    const video = document.getElementById(id);
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
+  }
+
+  for (const id of remoteVideoIds) {
+    const video = document.getElementById(id);
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
+  }
+
+  for (const id of videoPanelIds) {
+    const panel = document.getElementById(id);
+    if (panel) panel.hidden = true;
+  }
+
+	clearPrivateCallTimeout();
+	privateCallDocId = null;
+	privateCallBusy = false;
 }
+
+async function markPrivateCallMissed(callId) {
+  if (!callId) return;
+
+  const callRef = doc(db, 'privateCalls', callId);
+  const user = auth.currentUser;
+
+  if (!user) return;
+
+  try {
+    // Chỉ chuyển sang "missed" nếu cuộc gọi vẫn đang đổ chuông.
+    const wasMissed = await runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(callRef);
+
+      if (!snapshot.exists()) return false;
+
+      const call = snapshot.data();
+
+      if (
+        call.callerId !== user.uid ||
+        call.status !== 'calling' ||
+        !call.chatId
+      ) {
+        return false;
+      }
+
+      transaction.update(callRef, {
+        status: 'missed',
+        updatedAt: serverTimestamp()
+      });
+
+      return true;
+    });
+
+    if (!wasMissed) return;
+
+    const callSnapshot = await getDoc(callRef);
+    if (!callSnapshot.exists()) return;
+
+    const call = callSnapshot.data();
+
+    // ID cố định để không tạo nhiều bản tin cho cùng một cuộc gọi.
+    const missedMessageId = `missed_call_${callId}`;
+
+    await setDoc(
+      doc(db, 'privateChats', call.chatId, 'messages', missedMessageId),
+      {
+        senderId: call.callerId,
+        senderName: call.callerName || 'Thành viên',
+        avatar: '',
+        text: call.callType === 'video'
+          ? '📹 Cuộc gọi video nhỡ'
+          : '📞 Cuộc gọi thoại nhỡ',
+        createdAt: serverTimestamp(),
+        replyTo: null
+      }
+    );
+
+    console.log('[PRIVATE CALL] Đã ghi nhận cuộc gọi nhỡ:', callId);
+  } catch (error) {
+    console.error(
+      '[PRIVATE CALL] Không ghi được cuộc gọi nhỡ:',
+      error
+    );
+  } finally {
+    clearPrivateCallTimeout();
+  }
+}
+
 
 async function startPrivateVoiceCall(withVideo = false) {
   if (privateCallBusy || privateCallDocId) return;
 
   privateCallBusy = true;
 
-  try {
-    const user = auth.currentUser;
+try {
+  const user = auth.currentUser;
 
-    if (!user || !privateChatId || !privateChatTarget) {
-      throw new Error('Vui lòng chọn người chat riêng trước.');
-    }
+  if (!user || !privateChatId || !privateChatTarget) {
+    throw new Error('Vui lòng chọn người chat riêng trước.');
+  }
 
-    updatePrivateCallUI('Đang chuẩn bị cuộc gọi...');
+  const callerName =
+    state.currentUser?.displayName ||
+    state.currentUser?.name ||
+    user.displayName ||
+    user.email ||
+    'Thành viên';
 
-console.log(
-  '[VOICE CALL DEBUG] privateChatTarget:',
-  JSON.stringify(privateChatTarget)
-);
-    const participants = getPrivateCallChatParticipants();
-    const callRef = doc(collection(db, 'privateCalls'));
+  updatePrivateCallUI('Đang chuẩn bị cuộc gọi...');
+
+  console.log(
+    '[VOICE CALL DEBUG] privateChatTarget:',
+    JSON.stringify(privateChatTarget)
+  );
+
+  const participants = getPrivateCallChatParticipants();
+  const callRef = doc(collection(db, 'privateCalls'));
+
+  // Giữ nguyên phần code tiếp theo ở đây.
 
     // Tạo tài liệu cuộc gọi trước để Rules cho phép ghi ICE candidates.
     console.log('[VOICE CALL] Bắt đầu tạo cuộc gọi', {
@@ -1387,6 +1661,7 @@ try {
   chatId: privateChatId,
   participants,
   callerId: user.uid,
+  callerName,
   calleeId: typeof privateChatTarget === 'string'
     ? privateChatTarget
     : privateChatTarget?.uid,
@@ -1421,8 +1696,13 @@ try {
 
 privateCallDocId = callRef.id;
 
+clearPrivateCallTimeout();
+privateCallTimeout = setTimeout(() => {
+  void markPrivateCallMissed(callRef.id);
+}, 30000);
+
 const pc = createPrivateCallPeerConnection(callRef.id);
-await addPrivateCallLocalAudio(pc, withVideo);
+withVideo = await addPrivateCallLocalAudio(pc, withVideo);
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
@@ -1433,6 +1713,39 @@ await addPrivateCallLocalAudio(pc, withVideo);
       },
       updatedAt: serverTimestamp()
     });
+
+// Gửi thông báo FCM nền, không làm gián đoạn cuộc gọi nếu thất bại.
+void (async () => {
+  try {
+    const idToken = await user.getIdToken();
+
+    const response = await fetch(
+      "https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/private-call/notify",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ callId: callRef.id })
+      }
+    );
+
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      console.warn(
+        "[FCM] Chưa gửi được thông báo:",
+        result.error || response.status
+      );
+      return;
+    }
+
+console.log("[FCM] Kết quả gửi thông báo:", JSON.stringify(result, null, 2));
+  } catch (error) {
+    console.warn("[FCM] Lỗi gửi thông báo:", error);
+  }
+})();
 
     privateCallBusy = false;
 
@@ -1447,9 +1760,10 @@ await addPrivateCallLocalAudio(pc, withVideo);
       callRef,
       async (snapshot) => {
         if (!snapshot.exists()) return;
-
         const data = snapshot.data();
-
+	if (data.status !== 'calling') {
+  clearPrivateCallTimeout();
+}
         if (
           data.status === 'accepted' &&
           data.answer &&
@@ -1497,6 +1811,70 @@ await addPrivateCallLocalAudio(pc, withVideo);
 }
 
 
+async function writePrivateCallHistory(callId, callData, outcome) {
+  if (
+    !callId ||
+    !callData?.chatId ||
+    !['accepted', 'rejected'].includes(outcome)
+  ) {
+    return;
+  }
+
+  const isVideo = callData.callType === 'video';
+  const icon = isVideo ? '📹' : '📞';
+  const typeName = isVideo ? 'cuộc gọi video' : 'cuộc gọi thoại';
+
+  const text = outcome === 'accepted'
+    ? `${icon} Đã nhận ${typeName}`
+    : `${icon} Đã từ chối ${typeName}`;
+
+  const user = auth.currentUser;
+
+  if (!user) return;
+
+  const senderName =
+    state.currentUser?.displayName ||
+    state.currentUser?.name ||
+    user.displayName ||
+    user.email ||
+    'Thành viên';
+
+  const messageId = `call_${outcome}_${callId}`;
+
+  try {
+    await setDoc(
+      doc(
+        db,
+        'privateChats',
+        callData.chatId,
+        'messages',
+        messageId
+      ),
+      {
+        senderId: user.uid,
+        senderName,
+        avatar: state.currentUser?.photoURL || user.photoURL || '',
+        text,
+        createdAt: serverTimestamp(),
+        replyTo: null
+      }
+    );
+
+    console.log(
+      '[PRIVATE CALL HISTORY] Đã ghi lịch sử:',
+      outcome,
+      callId
+    );
+  } catch (error) {
+    console.error(
+      '[PRIVATE CALL HISTORY] Không ghi được lịch sử:',
+      outcome,
+      error
+    );
+  }
+}
+
+
 async function answerPrivateVoiceCall() {
   if (privateCallBusy || !privateCallDocId) return;
 
@@ -1519,16 +1897,18 @@ async function answerPrivateVoiceCall() {
       throw new Error('Cuộc gọi không còn khả dụng.');
     }
 
-    const withVideo = data.callType === 'video';
+  const pc = createPrivateCallPeerConnection(privateCallDocId);
 
+let withVideo = data.callType === 'video';
 updatePrivateCallUI(
   withVideo
     ? 'Đang kết nối microphone và camera...'
     : 'Đang kết nối microphone...'
 );
 
-const pc = createPrivateCallPeerConnection(privateCallDocId);
-await addPrivateCallLocalAudio(pc, withVideo);
+// const pc = createPrivateCallPeerConnection(privateCallDocId);
+withVideo = await addPrivateCallLocalAudio(pc, withVideo);
+
     if (!data.offer?.type || !data.offer?.sdp) {
   throw new Error('Cuộc gọi chưa có tín hiệu offer. Vui lòng thử lại.');
 }
@@ -1551,6 +1931,12 @@ const answer = await pc.createAnswer();
       status: 'accepted',
       updatedAt: serverTimestamp()
     });
+
+    await writePrivateCallHistory(
+	privateCallDocId,
+	data,
+	'accepted'
+     );
 
     privateCallBusy = false;
     updatePrivateCallUI('Đã kết nối cuộc gọi.', { end: true });
@@ -1588,6 +1974,11 @@ async function rejectPrivateVoiceCall() {
         status: 'rejected',
         updatedAt: serverTimestamp()
       });
+	await writePrivateCallHistory(
+	privateCallDocId,
+	snapshot.data(),
+	'rejected'
+      );
     }
   } catch (error) {
     console.error('Không thể từ chối cuộc gọi:', error);
@@ -1629,14 +2020,12 @@ async function endPrivateVoiceCall() {
 
 
 
-function stopPrivateIncomingCallListener() {
+export function stopPrivateIncomingCallListener() {
   privateCallIncomingUnsubscribe?.();
   privateCallIncomingUnsubscribe = null;
 }
 
-let privateCallIncomingUnsubscribe = null;
-
-function startPrivateIncomingCallListener() {
+export function startPrivateIncomingCallListener() {
   stopPrivateIncomingCallListener();
 
   const uid = auth.currentUser?.uid;
@@ -1653,15 +2042,15 @@ function startPrivateIncomingCallListener() {
       const incoming = snapshot.docs
         .map((item) => ({ id: item.id, ...item.data() }))
         .filter((call) =>
-          call.calleeId === uid &&
-          call.status === 'calling' &&
-          call.chatId === privateChatId
-        )
+		call.calleeId === uid &&
+		call.status === 'calling'
+	)
         .sort((a, b) => {
           const timeA = a.createdAt?.toMillis?.() || 0;
           const timeB = b.createdAt?.toMillis?.() || 0;
           return timeB - timeA;
         })[0];
+
 
 
 if (incoming) {
@@ -1670,16 +2059,21 @@ if (incoming) {
   privateCallDocId = incoming.id;
 
   const isVideoCall = incoming.callType === 'video';
+  const callerName =
+    incoming.callerName ||
+    incoming.senderName ||
+    'Thành viên';
 
   updatePrivateCallUI(
     isVideoCall
-      ? '📹 Có cuộc gọi video đến. Bạn có muốn nhận không?'
-      : '📞 Có cuộc gọi thoại đến. Bạn có muốn nhận không?',
+      ? `📹 Có cuộc gọi video từ ${callerName}. Bạn có muốn nhận không?`
+      : `📞 Có cuộc gọi thoại từ ${callerName}. Bạn có muốn nhận không?`,
     { answer: true, reject: true }
   );
 
   return;
 }
+
 
 // Cuộc gọi không còn ở trạng thái chờ nhận.
 if (privateCallDocId && !privateCallPeerConnection) {
@@ -1690,12 +2084,12 @@ if (privateCallDocId && !privateCallPeerConnection) {
       if (privateCallDocId !== oldCallId) return;
 
       if (
-        !callSnapshot.exists() ||
-        callSnapshot.data().status !== 'calling'
-      ) {
-        await cleanupPrivateCall();
-        updatePrivateCallUI('Cuộc gọi đã kết thúc hoặc bị hủy.');
-      }
+  !callSnapshot.exists() ||
+  callSnapshot.data().status !== 'calling'
+) {
+  await cleanupPrivateCall();
+  updatePrivateCallUI('Cuộc gọi đã kết thúc.');
+}
     })
     .catch((error) => {
       console.error('Lỗi kiểm tra trạng thái cuộc gọi:', error);
@@ -1709,45 +2103,73 @@ if (privateCallDocId && !privateCallPeerConnection) {
   );
 }
 
+export function syncPrivateIncomingCallListener(shouldListen) {
+  const uid = auth.currentUser?.uid;
+
+  if (!shouldListen || !uid) {
+    stopPrivateIncomingCallListener();
+    privateCallAuthUid = null;
+    return;
+  }
+
+  if (
+    privateCallAuthUid === uid &&
+    privateCallIncomingUnsubscribe
+  ) {
+    return;
+  }
+
+  privateCallAuthUid = uid;
+  startPrivateIncomingCallListener();
+}
+
 
 function bindPrivateCallButtons() {
   const start = document.getElementById('private-call-start');
   const videoStart = document.getElementById('private-video-call-start');
-  const answer = document.getElementById('private-call-answer');
-  const reject = document.getElementById('private-call-reject');
-  const end = document.getElementById('private-call-end');
+
+  const buttonGroups = [
+    {
+      answer: 'private-call-global-answer',
+      reject: 'private-call-global-reject',
+      end: 'private-call-global-end'
+    }
+  ];
 
   if (start && !start.dataset.callBound) {
     start.dataset.callBound = 'true';
-    start.addEventListener('click', () => {
-      startPrivateVoiceCall(false);
-    });
+    start.addEventListener('click', () => startPrivateVoiceCall(false));
   }
 
   if (videoStart && !videoStart.dataset.callBound) {
     videoStart.dataset.callBound = 'true';
-    videoStart.addEventListener('click', () => {
-      startPrivateVoiceCall(true);
-    });
+    videoStart.addEventListener('click', () => startPrivateVoiceCall(true));
   }
 
-  if (answer && !answer.dataset.callBound) {
-    answer.dataset.callBound = 'true';
-    answer.addEventListener('click', answerPrivateVoiceCall);
-  }
+  buttonGroups.forEach((ids) => {
+    const answer = document.getElementById(ids.answer);
+    const reject = document.getElementById(ids.reject);
+    const end = document.getElementById(ids.end);
 
-  if (reject && !reject.dataset.callBound) {
-    reject.dataset.callBound = 'true';
-    reject.addEventListener('click', rejectPrivateVoiceCall);
-  }
+    if (answer && !answer.dataset.callBound) {
+      answer.dataset.callBound = 'true';
+      answer.addEventListener('click', answerPrivateVoiceCall);
+    }
 
-  if (end && !end.dataset.callBound) {
-    end.dataset.callBound = 'true';
-    end.addEventListener('click', endPrivateVoiceCall);
-  }
+    if (reject && !reject.dataset.callBound) {
+      reject.dataset.callBound = 'true';
+      reject.addEventListener('click', rejectPrivateVoiceCall);
+    }
+
+    if (end && !end.dataset.callBound) {
+      end.dataset.callBound = 'true';
+      end.addEventListener('click', endPrivateVoiceCall);
+    }
+  });
 }
 
 bindPrivateCallButtons();
+
 
 
 async function openPrivateChat(targetUid) {
@@ -2034,18 +2456,55 @@ try {
     };
   }
 
-  await addDoc(
-    collection(db, 'privateChats', sendingChatId, 'messages'),
+  const privateMessageRef = await addDoc(
+  collection(db, 'privateChats', sendingChatId, 'messages'),
+  {
+    senderId: user.uid,
+    senderName: profile.displayName || 'Thành viên',
+    avatar: profile.photoURL || '',
+    text,
+    createdAt: serverTimestamp(),
+    replyTo: null,
+    ...mediaData
+  }
+);
+
+// Gửi thông báo riêng qua Worker.
+// Nếu thông báo lỗi, tin nhắn đã lưu vẫn không bị coi là gửi thất bại.
+try {
+  const idToken = await user.getIdToken();
+
+  const notifyResponse = await fetch(
+    'https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/private-chat/notify',
     {
-      senderId: user.uid,
-      senderName: profile.displayName || 'Thành viên',
-      avatar: profile.photoURL || '',
-      text,
-      createdAt: serverTimestamp(),
-      replyTo: null,
-      ...mediaData
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`
+      },
+      body: JSON.stringify({
+        chatId: sendingChatId,
+        messageId: privateMessageRef.id
+      })
     }
   );
+
+  const notifyResult = await notifyResponse.json();
+
+  if (!notifyResponse.ok) {
+    console.warn(
+      '[FCM] Chưa gửi được thông báo chat riêng:',
+      notifyResult.error || notifyResponse.status
+    );
+  } else {
+    console.log('[FCM] Kết quả thông báo chat riêng:', notifyResult);
+  }
+} catch (notifyError) {
+  console.warn(
+    '[FCM] Lỗi thông báo; tin nhắn vẫn đã được lưu:',
+    notifyError
+  );
+}
 
   if (privateChatId === sendingChatId) {
     if (input) {

@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswor
 import { doc, getDoc, setDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import { startChatPresence, stopChatPresence } from './chat-presence.js';
 import { refreshAnnouncementPermissions } from './announcements.js';
+import { syncPrivateIncomingCallListener} from './chat.js';
 
 
 let isSignUpMode = false;
@@ -53,6 +54,7 @@ async function applyAuthUser(user) {
     updateUserUI();
     updateDirectoryList();
     stopChatPresence();
+    syncPrivateIncomingCallListener(false);
     return;
   }
 
@@ -85,13 +87,14 @@ async function applyAuthUser(user) {
   updateDirectoryList();
 
   if (state.authStatus === 'approved' || state.isAdmin === true) {
-    startChatPresence();
+  startChatPresence();
+  syncPrivateIncomingCallListener(true);
   } else {
-    stopChatPresence();
+  stopChatPresence();
+  syncPrivateIncomingCallListener(false);
   }
 
   if (state.isAdmin === true) loadRecoveryRequests();
-
 
   if (state.authStatus === 'pending' && !authMessageShown) {
     authMessageShown = true;

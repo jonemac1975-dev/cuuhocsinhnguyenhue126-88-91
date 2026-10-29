@@ -9,7 +9,207 @@ import { initAnnouncements, refreshAnnouncementPermissions } from './announcemen
 import { initTikTok } from './tiktok.js';
 import { initEditorialBoard } from './editorial-board.js';
 import { initLive } from './live.js';
+import { getMessaging, getToken, onMessage, deleteToken} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+import { app, auth, db } from "./firebase-config.js";
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+const VAPID_KEY = "BBo94a2c_TnPUGbZ8vn8vRMg7IVAa2IpUrbVWPQPgOq3myyQ5YIR7Kr1zauRhkH_kTTPqGh21TLPkK827GNYcYA";
+const messaging = getMessaging(app);
+
+
+async function enableCallNotifications() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Bạn cần đăng nhập trước khi cài đặt thông báo.");
+    return;
+  }
+
+  if (!("Notification" in window)) {
+    alert("Trình duyệt này không hỗ trợ thông báo.");
+    return;
+  }
+
+  const memberRef = doc(db, "members", user.uid);
+
+  try {
+    // Đọc trạng thái token hiện tại trên tài khoản.
+    const memberSnap = await getDoc(memberRef);
+    const currentToken = memberSnap.exists()
+      ? memberSnap.data().fcmToken || ""
+      : "";
+
+    // Nếu đang bật trên tài khoản này thì click để tắt.
+    if (currentToken) {
+      await updateDoc(memberRef, {
+        fcmToken: "",
+        fcmTokenUpdatedAt: serverTimestamp()
+      });
+
+      console.log("[FCM] Đã tắt thông báo cuộc gọi cho tài khoản này.");
+      updateCallNotificationButton(false);
+      alert("Bạn muốn tắt thông báo");
+      return;
+    }
+
+    // Nếu chưa bật thì tiến hành đăng ký.
+    const permission = await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      alert("Bạn chưa cấp quyền thông báo.");
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registration
+    });
+
+    if (!token) {
+      throw new Error("Firebase chưa cấp FCM token.");
+    }
+
+    await setDoc(
+      memberRef,
+      {
+        fcmToken: token,
+        fcmTokenUpdatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+    console.log("[FCM] Đã bật thông báo cuộc gọi.");
+    updateCallNotificationButton(true);
+    alert("Bạn muốn bật thông báo");
+  } catch (error) {
+    console.error("[FCM] Không đổi được trạng thái:", error);
+    alert("Chưa đổi được trạng thái thông báo: " +
+      (error.message || error));
+  }
+}
+
+window.enableCallNotifications = enableCallNotifications;
+
+
+
+const callNotificationButton = document.getElementById(
+  'call-notification-toggle'
+);
+
+if (
+  callNotificationButton &&
+  !callNotificationButton.dataset.bound
+) {
+  callNotificationButton.dataset.bound = 'true';
+
+  callNotificationButton.addEventListener('click', () => {
+    window.enableCallNotifications();
+  });
+}
+
+const mobileCallNotificationButton = document.getElementById(
+  'mobile-call-notification-toggle'
+);
+
+if (
+  mobileCallNotificationButton &&
+  !mobileCallNotificationButton.dataset.bound
+) {
+  mobileCallNotificationButton.dataset.bound = 'true';
+
+  mobileCallNotificationButton.addEventListener('click', () => {
+    window.enableCallNotifications();
+  });
+}
+
+
+
+
+function updateCallNotificationButton(isEnabled) {
+  const buttons = [
+    document.getElementById('call-notification-toggle'),
+    document.getElementById('mobile-call-notification-toggle')
+  ].filter(Boolean);
+
+  buttons.forEach((button) => {
+    button.classList.toggle('is-enabled', isEnabled);
+    button.setAttribute('aria-pressed', String(isEnabled));
+
+    if (button.id === 'mobile-call-notification-toggle') {
+      button.innerHTML = isEnabled
+        ? '<i class="fa-solid fa-bell text-base"></i><span class="text-[10px] font-semibold mt-0.5">Đang bật</span>'
+        : '<i class="fa-solid fa-bell-slash text-base"></i><span class="text-[10px] font-semibold mt-0.5">Thông báo</span>';
+    } else {
+      button.innerHTML = isEnabled ? '🔔 Tắt' : '🔕 Bật';
+    }
+  });
+}
+
+
+
+onMessage(messaging, async (payload) => {
+  console.log('[FCM] Nhận thông báo khi trang đang mở:', payload);
+
+  const data = payload.data || {};
+
+  // Chỉ bổ sung thông báo chat riêng.
+  // Không thay đổi cách xử lý cuộc gọi hiện có.
+  if (
+  data.type !== 'private_chat' &&
+  data.type !== 'group_chat'
+  ) return;
+
+  if (!('Notification' in window) ||
+      Notification.permission !== 'granted') {
+    return;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+
+    await registration.showNotification(
+      data.title || '💬 Tin nhắn riêng mới',
+          {
+        body: data.body || 'Bạn có tin nhắn mới.',
+        messageId: data.messageId || '',
+        icon: '/favicon.ico',
+        tag: data.type === 'group_chat'
+  ? 'group-chat'
+  : `private-chat-${data.chatId || 'message'}`,
+        renotify: true,
+        data: {
+          url: data.url || '/',
+          type: 'private_chat',
+          chatId: data.chatId || '',
+          senderId: data.senderId || ''
+        }
+      }
+    );
+  } catch (error) {
+    console.warn('[FCM] Không hiển thị được thông báo chat:', error);
+  }
+});
+
+
+async function registerMessagingServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    console.warn('Trình duyệt không hỗ trợ Service Worker.');
+    return;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.register(
+      '/firebase-messaging-sw.js'
+    );
+
+    await navigator.serviceWorker.ready;
+    console.log('Messaging Service Worker đã đăng ký:', registration.scope);
+  } catch (error) {
+    console.error('Không đăng ký được Messaging Service Worker:', error);
+  }
+}
 
 
 function scrollToForm(target) {
@@ -34,7 +234,21 @@ export function switchTab(tabName) {
   const activeBtn = document.getElementById(`nav-${tabName}`);
   if (activeBtn) activeBtn.classList.add('active');
 
+  // Cập nhật màu nút đang chọn trên thanh điều hướng mobile
+  document.querySelectorAll('[id^="m-nav-"]').forEach((button) => {
+    button.classList.remove('text-amber-600');
+    button.classList.add('text-stone-400');
+  });
+
+  const activeMobileBtn = document.getElementById(`m-nav-${tabName}`);
+  if (activeMobileBtn) {
+    activeMobileBtn.classList.remove('text-stone-400');
+    activeMobileBtn.classList.add('text-amber-600');
+  }
+
+
   document.getElementById('feed-composer')?.classList.toggle('hidden', tabName !== 'feed');
+  document.getElementById('chat-mode-switcher')?.classList.toggle('hidden', tabName !== 'chat');
 
   const postsList = document.getElementById('posts-list');
   if (postsList) postsList.classList.toggle('hidden', tabName !== 'feed');
@@ -59,11 +273,35 @@ requestAnimationFrame(() => {
 });
 }
 
+
+async function syncCallNotificationButton() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    updateCallNotificationButton(false);
+    return;
+  }
+
+  try {
+    const memberSnap = await getDoc(doc(db, 'members', user.uid));
+    const token = memberSnap.exists()
+      ? memberSnap.data().fcmToken || ''
+      : '';
+
+    updateCallNotificationButton(Boolean(token));
+  } catch (error) {
+    console.warn('[FCM] Không đọc được trạng thái thông báo:', error);
+  }
+}
+
+
 window.switchTab = switchTab;
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  syncCallNotificationButton();
   updateUserUI();
+  registerMessagingServiceWorker();
   loadEvents();
   renderPosts();
   updateDirectoryList();
