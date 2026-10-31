@@ -90,23 +90,67 @@ function showLiveHeart() {
   if (!overlay) return;
 
   const heart = document.createElement('i');
-  heart.className = 'fa-solid fa-heart absolute text-rose-500';
-  heart.style.left = `${15 + Math.random() * 70}%`;
-  heart.style.bottom = '0';
-  heart.style.fontSize = `${20 + Math.random() * 18}px`;
-  heart.style.opacity = '1';
-  heart.style.transition =
-    'transform 2.2s ease-out, opacity 2.2s ease-out';
+  heart.className = 'fa-solid fa-heart';
+
+  const colors = [
+    '#fb7185', // hồng
+    '#f43f5e', // hồng đỏ
+    '#ef4444', // đỏ
+    '#e879f9', // hồng tím
+    '#fda4af'  // hồng nhạt
+  ];
+
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  const size = 24 + Math.random() * 22;
+  const startX = 12 + Math.random() * 76;
+  const driftX = Math.random() * 100 - 50;
+  const driftX2 = Math.random() * 140 - 70;
+  const riseY = 180 + Math.random() * 160;
+  const duration = 2400 + Math.random() * 900;
+  const rotation = Math.random() * 50 - 25;
+
+  heart.style.position = 'absolute';
+  heart.style.left = `${startX}%`;
+  heart.style.bottom = '8%';
+  heart.style.fontSize = `${size}px`;
+  heart.style.color = color;
+  heart.style.opacity = '0';
+  heart.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 2px 8px rgba(0,0,0,.35))`;
+  heart.style.willChange = 'transform, opacity';
+  heart.style.transform = 'translate(-50%, 0) scale(0.3)';
+  heart.style.pointerEvents = 'none';
 
   overlay.appendChild(heart);
 
-  requestAnimationFrame(() => {
-    heart.style.transform =
-      `translate(${Math.random() * 50 - 25}px, -${180 + Math.random() * 100}px) scale(1.5)`;
-    heart.style.opacity = '0';
-  });
+  const animation = heart.animate(
+    [
+      {
+        transform: 'translate(-50%, 0) scale(0.3) rotate(0deg)',
+        opacity: 0
+      },
+      {
+        transform: `translate(calc(-50% + ${driftX * 0.35}px), -${riseY * 0.18}px) scale(1.25) rotate(${rotation * 0.4}deg)`,
+        opacity: 1,
+        offset: 0.16
+      },
+      {
+        transform: `translate(calc(-50% + ${driftX}px), -${riseY * 0.62}px) scale(1.05) rotate(${rotation}deg)`,
+        opacity: 0.9,
+        offset: 0.62
+      },
+      {
+        transform: `translate(calc(-50% + ${driftX2}px), -${riseY}px) scale(0.75) rotate(${rotation * -0.7}deg)`,
+        opacity: 0
+      }
+    ],
+    {
+      duration,
+      easing: 'cubic-bezier(0.22, 0.68, 0.32, 1)',
+      fill: 'forwards'
+    }
+  );
 
-  setTimeout(() => heart.remove(), 2300);
+  animation.onfinish = () => heart.remove();
 }
 
 function setLiveLikeCount(count) {
@@ -406,7 +450,7 @@ async function callLiveApi(action, extra = {}) {
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error('Vui lòng đăng nhập trước khi sử dụng Live.');
+    throw new Error('Vui lòng đăng nhập trước khi Live.');
   }
 
   const idToken = await user.getIdToken();
@@ -431,7 +475,7 @@ async function callLiveApi(action, extra = {}) {
 
   if (!response.ok) {
     if (response.status === 401) {
-      throw new Error('Phiên đăng nhập hết hạn. Anh hãy đăng nhập lại.');
+      throw new Error('Phiên đăng nhập hết hạn. Bạn hãy đăng nhập lại.');
     }
 
     if (response.status === 403) {
@@ -750,7 +794,7 @@ export async function joinLive() {
 export async function endLive() {
   if (liveBusy || !liveRoom || liveRole !== 'host') return;
 
-  if (!confirm('Anh có chắc muốn kết thúc buổi Live cho tất cả mọi người?')) {
+  if (!confirm('Bạn muốn kết thúc buổi Live?')) {
     return;
   }
 
