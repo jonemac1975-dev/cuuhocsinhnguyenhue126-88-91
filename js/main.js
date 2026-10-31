@@ -5,6 +5,7 @@ import { renderChatMessages, startChatListener, stopChatListener } from './chat.
 import { renderEvents, loadEvents } from './events.js';
 import { updateDirectoryList } from './directory.js';
 import { updateUserUI } from './auth.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { initAnnouncements, refreshAnnouncementPermissions } from './announcements.js';
 import { initTikTok } from './tiktok.js';
 import { initEditorialBoard } from './editorial-board.js';
@@ -149,41 +150,75 @@ function updateCallNotificationButton(isEnabled) {
 
 
 
+
 onMessage(messaging, async (payload) => {
   console.log('[FCM] Nhận thông báo khi trang đang mở:', payload);
 
   const data = payload.data || {};
-
-  // Chỉ bổ sung thông báo chat riêng.
-  // Không thay đổi cách xử lý cuộc gọi hiện có.
-  if (
-  data.type !== 'private_chat' &&
-  data.type !== 'group_chat'
-  ) return;
 
   if (!('Notification' in window) ||
       Notification.permission !== 'granted') {
     return;
   }
 
+  // Cuộc gọi đến khi tab đang chạy nền hoặc bị ẩn.
+  if (data.type === 'private_call') {
+    if (document.visibilityState === 'visible') return;
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+
+      await registration.showNotification(
+        data.title || '📞 Cuộc gọi đến',
+        {
+          body: data.body || 'Bạn có một cuộc gọi mới.',
+          icon: '/favicon.ico',
+          tag: `private-call-${data.callId || 'incoming'}`,
+          renotify: true,
+          requireInteraction: true,
+          data: {
+            url: data.url || (
+              data.callId
+                ? `/?incomingCallId=${encodeURIComponent(data.callId)}`
+                : '/'
+            ),
+            type: 'private_call',
+            callId: data.callId || '',
+            senderId: data.senderId || ''
+          }
+        }
+      );
+    } catch (error) {
+      console.warn('[FCM] Không hiển thị được thông báo cuộc gọi:', error);
+    }
+
+    return;
+  }
+
+  // Giữ nguyên xử lý thông báo chat.
+  if (
+    data.type !== 'private_chat' &&
+    data.type !== 'group_chat'
+  ) return;
+
   try {
     const registration = await navigator.serviceWorker.ready;
 
     await registration.showNotification(
-      data.title || '💬 Tin nhắn riêng mới',
-          {
+      data.title || '💬 Tin nhắn mới',
+      {
         body: data.body || 'Bạn có tin nhắn mới.',
-        messageId: data.messageId || '',
         icon: '/favicon.ico',
         tag: data.type === 'group_chat'
-  ? 'group-chat'
-  : `private-chat-${data.chatId || 'message'}`,
+          ? `group-chat-${data.messageId || 'message'}`
+          : `private-chat-${data.chatId || 'message'}`,
         renotify: true,
         data: {
           url: data.url || '/',
-          type: 'private_chat',
+          type: data.type,
           chatId: data.chatId || '',
-          senderId: data.senderId || ''
+          senderId: data.senderId || '',
+          messageId: data.messageId || ''
         }
       }
     );
@@ -191,6 +226,7 @@ onMessage(messaging, async (payload) => {
     console.warn('[FCM] Không hiển thị được thông báo chat:', error);
   }
 });
+
 
 
 async function registerMessagingServiceWorker() {
@@ -205,8 +241,7 @@ async function registerMessagingServiceWorker() {
     );
 
     await navigator.serviceWorker.ready;
-    console.log('Messaging Service Worker đã đăng ký:', registration.scope);
-  } catch (error) {
+    } catch (error) {
     console.error('Không đăng ký được Messaging Service Worker:', error);
   }
 }
@@ -274,9 +309,7 @@ requestAnimationFrame(() => {
 }
 
 
-async function syncCallNotificationButton() {
-  const user = auth.currentUser;
-
+async function syncCallNotificationButton(user = auth.currentUser) {
   if (!user) {
     updateCallNotificationButton(false);
     return;
@@ -284,6 +317,10 @@ async function syncCallNotificationButton() {
 
   try {
     const memberSnap = await getDoc(doc(db, 'members', user.uid));
+
+    // Bỏ kết quả nếu tài khoản đã thay đổi trong lúc đang đọc.
+    if (auth.currentUser?.uid !== user.uid) return;
+
     const token = memberSnap.exists()
       ? memberSnap.data().fcmToken || ''
       : '';
@@ -299,7 +336,9 @@ window.switchTab = switchTab;
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  syncCallNotificationButton();
+   onAuthStateChanged(auth, (user) => {
+  syncCallNotificationButton(user);
+});
   updateUserUI();
   registerMessagingServiceWorker();
   loadEvents();

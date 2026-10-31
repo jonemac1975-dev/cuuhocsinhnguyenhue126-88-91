@@ -335,7 +335,7 @@
   <!-- Hero Banner -->
   <div class="max-w-[1600px] w-full mx-auto px-4 mt-4">
     <section id="hero-banner" class="hero-banner">
-      <img id="hero-background" src="store/anh1.png" alt="Ảnh kỷ niệm lớp">
+<img id="hero-background" src="store/anh1.jpg" alt="Ảnh kỷ niệm lớp">
       <div class="hero-overlay">
            <h2 class="hero-title">CỰU HỌC SINH NGUYỄN HUỆ 88 - 91</h2>
         <div class="hero-marquee">
@@ -358,11 +358,17 @@
             </span>
             Livestream lớp mình
           </h2>
-          <p id="live-status" class="mt-1 text-xs text-stone-500">
-            Chưa có buổi Live đang diễn ra
-          </p>
-        </div>
-        <button type="button" onclick="closeLivePanel()" class="rounded-xl px-3 py-1.5 text-xs font-semibold text-stone-500 hover:bg-stone-100 transition">
+          <div class="mt-1 flex flex-wrap items-center gap-3 text-xs">
+	<p id="live-status" class="text-stone-500">
+	Chưa có buổi Live đang diễn ra
+	</p>
+	<span class="inline-flex items-center gap-1 text-stone-600">
+	<i class="fa-solid fa-users"></i>
+	<span id="live-participant-count">0</span> người tham gia
+	</span>
+	</div>
+	</div>
+	<button type="button" onclick="closeLivePanel()" class="rounded-xl px-3 py-1.5 text-xs font-semibold text-stone-500 hover:bg-stone-100 transition">
           Đóng
         </button>
       </div>
@@ -370,6 +376,68 @@
       <div id="live-video-container" class="hidden bg-stone-950">
         <div id="live-video-grid" class="grid grid-cols-1 gap-2 p-2"></div>
       </div>
+
+<!-- LIVE COMMAND -->
+<div id="live-command-panel" class="hidden border-t border-stone-100 bg-stone-50">
+  <div class="flex items-center justify-between px-4 pt-3 pb-2">
+    <h3 class="flex items-center gap-2 text-sm font-bold text-stone-700">
+      <i class="fa-solid fa-terminal text-red-600"></i>
+      Command trực tiếp
+    </h3>
+    <span class="text-xs text-stone-400">Dành cho tất cả người tham gia</span>
+  </div>
+
+  <div
+    id="live-command-list"
+    class="mx-4 mb-3 max-h-52 space-y-2 overflow-y-auto rounded-xl border border-stone-200 bg-white p-3"
+  >
+    <p id="live-command-empty" class="py-3 text-center text-xs text-stone-400">
+      Chưa có command nào. Hãy gửi lệnh đầu tiên!
+    </p>
+  </div>
+
+  <form id="live-command-form" class="flex gap-2 px-4 pb-4">
+    <input
+      id="live-command-input"
+      type="text"
+      maxlength="500"
+      autocomplete="off"
+      placeholder="Nhập command..."
+      class="min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
+    >
+
+    <button
+      id="live-command-send"
+      type="submit"
+      class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <i class="fa-solid fa-paper-plane"></i>
+      Gửi
+    </button>
+  </form>
+</div>
+<!-- END LIVE COMMAND -->
+
+<div class="relative flex flex-wrap items-center gap-3 border-t border-stone-100 bg-white px-4 py-3">
+  <button
+    type="button"
+    id="live-like-btn"
+    class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-2 font-bold text-rose-600 transition hover:bg-rose-100 active:scale-95"
+  >
+    <i class="fa-solid fa-heart"></i>
+    Thả tim
+  </button>
+
+  <span class="text-sm text-stone-500">
+    <span id="live-like-count" class="font-bold text-rose-600">0</span>
+    lượt thích
+  </span>
+
+  <div
+    id="live-heart-overlay"
+    class="pointer-events-none absolute inset-0 overflow-hidden"
+  ></div>
+</div>
 
       <div class="flex flex-wrap gap-2 p-4 bg-white">
         <button type="button" id="live-start-btn" onclick="startLive()" class="rounded-xl bg-red-600 px-4 py-2.5 font-bold text-white text-sm hover:bg-red-700 shadow-sm transition active:scale-95">
@@ -460,7 +528,7 @@
         <!-- Form Đăng Bài: chỉ hiện khi bấm Bảng Tin -->
         <div id="feed-composer" class="hidden bg-white rounded-2xl shadow-sm border border-stone-200/80 p-4 mb-5 transition-all">
           <div class="flex items-center gap-3">
-            <img id="post-author-avatar" src="store/logo.png" alt="Avatar" class="w-11 h-11 rounded-full object-cover bg-stone-100 ring-2 ring-amber-100">
+            <img id="post-author-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed=Ban%20hoc&backgroundColor=f5f5f4&textColor=a8a29e" alt="Avatar" class="w-11 h-11 rounded-full object-cover bg-stone-100 ring-2 ring-amber-100">
             <div>
               <div id="post-author-name" class="font-bold text-sm text-stone-900">Cựu Học Sinh 126</div>
               <div class="text-xs text-stone-400 font-medium">Status · Bạn đang nghĩ gì?</div>
@@ -505,124 +573,212 @@
         <!-- Tab 2: Group Chat -->
         <!-- Phần 1: Chat riêng 1-1 -->
 
-<div id="chat-mode-switcher" class="hidden flex gap-2 mb-3">
-  <button
-    id="chat-mode-group"
-    type="button"
-    class="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-semibold"
-  >
-    Chat nhóm
-  </button>
-  <button
-    id="chat-mode-private"
-    type="button"
-    class="px-4 py-2 rounded-lg bg-stone-100 text-stone-700 text-sm font-semibold"
-  >
-    Chat riêng
-  </button>
+
+
+<div id="chat-mode-switcher" class="hidden flex flex-col gap-2 mb-3">
+
+  <!-- Tiêu đề -->
+  <div>
+    <h3 class="inline-block whitespace-nowrap rounded-lg bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-2.5 text-xs font-bold tracking-wider text-white shadow-sm">
+      NƠI TRÒ CHUYỆN
+    </h3>
+  </div>
+
+  <!-- Hai nút chuyển chế độ -->
+  <div class="flex flex-wrap items-center gap-2">
+    <button
+      id="chat-mode-group"
+      type="button"
+      class="whitespace-nowrap rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-green-700 disabled:opacity-50"
+    >
+      Chat nhóm
+    </button>
+
+    <button
+      id="chat-mode-private"
+      type="button"
+      class="whitespace-nowrap rounded-lg bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 shadow-sm hover:bg-stone-200 disabled:opacity-50"
+    >
+      Chat riêng
+    </button>
+  </div>
+
 </div>
 
 
-<!-- Form cuộc gọi riêng dùng chung toàn trang -->
 
-<div id="private-call-global-panel"
-     class="hidden fixed bottom-5 right-5 z-[9999] w-[min(92vw,380px)] rounded-2xl border border-stone-200 bg-white p-4 shadow-2xl">
+<!-- GLOBAL PRIVATE CALL PANEL -->
+<div
+  id="private-call-global-panel"
+  class="private-call-global-panel hidden fixed bottom-5 right-5 z-[9999] w-[min(94vw,400px)] overflow-hidden rounded-3xl border border-white/10 bg-slate-950 text-white shadow-2xl"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between border-b border-white/10 bg-gradient-to-r from-indigo-600/30 to-violet-600/20 px-5 py-4">
+    <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/20 text-xl">
+        <i class="fa-solid fa-phone-volume text-indigo-300"></i>
+      </div>
 
-  <div class="mb-3 flex items-center justify-between">
-    <h3 class="font-bold text-stone-800">Cuộc gọi riêng</h3>
-    <span class="text-xl">📞</span>
+      <div>
+        <h3 class="font-bold tracking-wide">Cuộc gọi riêng</h3>
+        <p class="text-xs text-slate-400">Kết nối riêng tư</p>
+      </div>
+    </div>
+
+    <span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-slate-300">
+      <i class="fa-solid fa-shield-halved"></i>
+    </span>
   </div>
 
-  <p id="private-call-global-status"
-     class="text-sm text-stone-600"
-     aria-live="polite">Chưa có cuộc gọi.</p>
+  <!-- Call status -->
+  <div class="px-5 py-4">
+    <div class="flex items-center gap-2">
+      <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
 
-  <div id="private-call-global-video-panel"
-       class="private-call-video-panel"
-       hidden>
-    <div class="private-call-video-item">
-      <video id="private-call-global-local-video"
-             autoplay playsinline muted></video>
-      <span>Camera của bạn</span>
-    </div>
-    <div class="private-call-video-item">
-      <video id="private-call-global-remote-video"
-             autoplay playsinline></video>
-      <span>Người đang gọi</span>
+      <p
+        id="private-call-global-status"
+        class="text-sm font-medium text-slate-200"
+        aria-live="polite"
+      >
+        Chưa có cuộc gọi.
+      </p>
     </div>
   </div>
 
-  <div class="mt-3 flex flex-wrap gap-2">
-    <button id="private-call-global-answer"
-            type="button"
-            class="hidden rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white">
+  <!-- Video area -->
+  <div
+    id="private-call-global-video-panel"
+    class="private-call-video-panel px-4 pb-4"
+    hidden
+  >
+    <div class="grid grid-cols-2 gap-3">
+      <div class="private-call-video-item group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900">
+        <video
+          id="private-call-global-local-video"
+          autoplay
+          playsinline
+          muted
+        ></video>
+
+        <span class="absolute bottom-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[11px] font-medium text-white">
+          <i class="fa-solid fa-user mr-1"></i>
+          Bạn
+        </span>
+      </div>
+
+      <div class="private-call-video-item group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900">
+        <video
+          id="private-call-global-remote-video"
+          autoplay
+          playsinline
+        ></video>
+
+        <span class="absolute bottom-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[11px] font-medium text-white">
+          <i class="fa-solid fa-user-group mr-1"></i>
+          Người gọi
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="flex items-center justify-center gap-3 px-5 pb-5">
+    <button
+      id="private-call-global-answer"
+      type="button"
+      class="hidden inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-400 active:scale-95"
+    >
+      <i class="fa-solid fa-phone"></i>
       Nhận cuộc gọi
     </button>
 
-    <button id="private-call-global-reject"
-            type="button"
-            class="hidden rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700">
+    <button
+      id="private-call-global-reject"
+      type="button"
+      class="hidden inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-rose-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-rose-900/30 transition hover:bg-rose-500 active:scale-95"
+    >
+      <i class="fa-solid fa-phone-slash"></i>
       Từ chối
     </button>
 
-    <button id="private-call-global-end"
-            type="button"
-            class="hidden rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white">
+    <button
+      id="private-call-global-end"
+      type="button"
+      class="hidden inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-rose-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-rose-900/30 transition hover:bg-rose-500 active:scale-95"
+    >
+      <i class="fa-solid fa-phone-slash"></i>
       Kết thúc
     </button>
   </div>
-
 </div>
-
-
+<!-- END GLOBAL PRIVATE CALL PANEL -->
 
 <div id="private-chat-panel" class="hidden overflow-hidden rounded-2xl border border-stone-200 bg-white">
 
 
   <!-- Khu vực chọn thành viên và gọi điện -->
-  <div class="border-b border-stone-200 p-3">
+  <!-- KHU VỰC CHỌN THÀNH VIÊN VÀ GỌI ĐIỆN -->
+<div class="border-b border-stone-200 bg-gradient-to-br from-white to-indigo-50/50 p-4">
 
-    <div class="flex flex-wrap items-end gap-2">
-      <div class="shrink-0">
-        <label for="private-chat-member" class="mb-2 block text-sm font-semibold text-stone-700">
-          Chọn bạn chat
-        </label>
-
-        <select
-          id="private-chat-member"
-          class="w-[200px] max-w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm"
-        >
-          <option value="">-- danh sách --</option>
-        </select>
-      </div>
-
-      <div class="flex shrink-0 items-center gap-1">
-        <button
-          id="private-call-start"
-          type="button"
-          class="whitespace-nowrap rounded-lg bg-green-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
-        >
-          📞 Gọi thoại
-        </button>
-
-        <button
-          id="private-video-call-start"
-          type="button"
-          class="whitespace-nowrap rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          📹 Gọi video
-        </button>
-      </div>
+  <div class="mb-4 flex items-center gap-3">
+    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
+      <i class="fa-solid fa-headset text-lg"></i>
     </div>
 
-    <p
-      id="private-chat-status"
-      class="mt-2 text-xs text-stone-500"
-      aria-live="polite"
-    >
-      Chọn thành viên để bắt đầu trò chuyện.
-    </p>
+    <div>
+      <h3 class="font-bold text-stone-800">Liên lạc riêng</h3>
+      <p class="text-xs text-stone-500">Gọi thoại hoặc trò chuyện video</p>
+    </div>
   </div>
+
+  <label
+    for="private-chat-member"
+    class="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-500"
+  >
+    Chọn thành viên
+  </label>
+
+  <div class="flex items-center gap-2">
+  <select
+    id="private-chat-member"
+    class="min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+  >
+    <option value="">-- Chọn người muốn liên lạc --</option>
+  </select>
+
+  <button
+    id="private-call-start"
+    type="button"
+    title="Gọi thoại"
+    aria-label="Gọi thoại"
+    class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 px-2.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <i class="fa-solid fa-phone"></i>
+    Gọi thoại
+  </button>
+
+  <button
+    id="private-video-call-start"
+    type="button"
+    title="Gọi video"
+    aria-label="Gọi video"
+    class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 px-2.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <i class="fa-solid fa-video"></i>
+    Video
+  </button>
+</div>
+
+  <p
+    id="private-chat-status"
+    class="mt-3 flex items-center gap-2 text-xs text-stone-500"
+    aria-live="polite"
+  >
+    <i class="fa-solid fa-circle-info text-indigo-400"></i>
+    Chọn thành viên để bắt đầu trò chuyện.
+  </p>
+</div>
+<!-- END KHU VỰC GỌI ĐIỆN -->
 
   <!-- Danh sách tin nhắn riêng -->
   <div
@@ -639,6 +795,12 @@
     id="private-chat-media-status"
     class="hidden px-3 pt-2 text-xs"
     role="status"
+  ></div>
+
+  <!-- Xem trước tin nhắn đang trả lời trong chat riêng -->
+  <div
+    id="private-chat-reply-preview"
+    class="hidden mx-3 mt-2 rounded-lg border-l-4 border-amber-500 bg-amber-50 p-2"
   ></div>
 
   <!-- Thanh gửi tin nhắn riêng -->
@@ -694,9 +856,9 @@
             <div class="flex-1 min-w-0 flex flex-col">
               <div class="p-3.5 border-b border-stone-100 bg-amber-50/40 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
-                  <div class="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-base shadow-sm"><i class="fa-solid fa-comments"></i></div>
+                  <div class="w-9 h-9 rounded-xl bg-amber-400 text-white flex items-center justify-center font-bold text-base shadow-sm"><i class="fa-solid fa-comments"></i></div>
                   <div>
-                    <h3 class="font-bold text-stone-800 text-sm">Hộp Chat Chung Cả Lớp</h3>
+                    <h3 class="font-bold text-stone-800 text-sm">Chat box</h3>
                     <p class="text-[11px] text-emerald-600 font-medium flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse"></span>Trực tuyến thời gian thực</p>
                   </div>
                 </div>

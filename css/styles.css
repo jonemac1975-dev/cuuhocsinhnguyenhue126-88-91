@@ -1352,3 +1352,58 @@ body {
   border-color: #86efac;
   color: #166534;
 }
+
+
+/* ===== PRIVATE CALL UI ===== */
+
+.private-call-global-panel {
+  animation: privateCallAppear 0.25s ease-out;
+  backdrop-filter: blur(18px);
+}
+
+@keyframes privateCallAppear {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.private-call-video-item {
+  min-width: 0;
+  aspect-ratio: 4 / 5;
+}
+
+.private-call-video-item video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 130px;
+  object-fit: cover;
+  background: #0f172a;
+  border-radius: 1rem;
+}
+
+#private-call-global-local-video {
+  transform: scaleX(-1);
+}
+
+#private-call-global-video-panel[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  #private-call-global-panel {
+    right: 3vw;
+    bottom: 12px;
+    width: min(94vw, 400px);
+  }
+
+  .private-call-video-item video {
+    min-height: 110px;
+  }
+}

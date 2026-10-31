@@ -8,6 +8,7 @@ import { startChatPresence, stopChatPresence } from './chat-presence.js';
 import { refreshAnnouncementPermissions } from './announcements.js';
 import { syncPrivateIncomingCallListener} from './chat.js';
 
+const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='50' fill='%23f5f5f4'/%3E%3Ccircle cx='50' cy='37' r='17' fill='%23a8a29e'/%3E%3Cpath d='M18 88c3-19 15-29 32-29s29 10 32 29' fill='%23a8a29e'/%3E%3C/svg%3E";
 
 let isSignUpMode = false;
 let authActionInProgress = false;
@@ -542,22 +543,35 @@ export function updateUserUI() {
 
   if (!avatarEl || !nameEl || !btnTextEl) return;
 
+  const postAvatar = document.getElementById('post-author-avatar');
+  const postName = document.getElementById('post-author-name');
+
   if (state.currentUser) {
-    avatarEl.src = state.currentUser.photoURL;
-const postAvatar = document.getElementById('post-author-avatar');
-const postName = document.getElementById('post-author-name');
-if (postAvatar) postAvatar.src = state.currentUser.photoURL || 'store/logo.png';
-if (postName) postName.innerText = state.currentUser.displayName || 'Bạn học';
-    nameEl.innerText = state.currentUser.displayName;
+    avatarEl.src = state.currentUser.photoURL || DEFAULT_AVATAR;
+
+    if (postAvatar) {
+      postAvatar.src = state.currentUser.photoURL || DEFAULT_AVATAR;
+    }
+
+    if (postName) {
+      postName.innerText = state.currentUser.displayName || 'Bạn học';
+    }
+
+    nameEl.innerText = state.currentUser.displayName || 'Bạn học';
     btnTextEl.innerText = 'Đăng Xuất';
   } else {
-    avatarEl.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=Guest';
+    avatarEl.src = DEFAULT_AVATAR;
+
+    if (postAvatar) {
+      postAvatar.src = DEFAULT_AVATAR;
+    }
+
+    if (postName) {
+      postName.innerText = 'Cựu Học Sinh 126';
+    }
+
     nameEl.innerText = 'Bạn học';
     btnTextEl.innerText = 'Đăng Nhập';
-const postAvatar = document.getElementById('post-author-avatar');
-const postName = document.getElementById('post-author-name');
-if (postAvatar) postAvatar.src = 'store/logo.png';
-if (postName) postName.innerText = 'Cựu Học Sinh 126';
   }
 
   if (profileBtn) {
@@ -566,9 +580,13 @@ if (postName) postName.innerText = 'Cựu Học Sinh 126';
       !(state.currentUser && state.authStatus === 'pending')
     );
   }
-const recoveryPanel = document.getElementById('admin-recovery-panel');
-if (recoveryPanel) recoveryPanel.classList.toggle('hidden', state.isAdmin !== true);
-refreshAnnouncementPermissions();
+
+  const recoveryPanel = document.getElementById('admin-recovery-panel');
+  if (recoveryPanel) {
+    recoveryPanel.classList.toggle('hidden', state.isAdmin !== true);
+  }
+
+  refreshAnnouncementPermissions();
 }
 
 

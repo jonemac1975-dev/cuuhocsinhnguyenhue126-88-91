@@ -24,6 +24,8 @@ let privateCallLocalStream = null;
 let privateCallRemoteAudio = null;
 let privateCallIceUnsubscribe = [];
 let privateCallBusy = false;
+let privateReplyingTo = null;
+
 export let privateCallIncomingUnsubscribe = null;
 export let privateCallAuthUid = null;
 let privateCallNoticeTimer = null;
@@ -395,7 +397,7 @@ const avatar = escapeHtml(
 
 
 const textHtml = m.text
-  ? `<div class="p-2 sm:p-3 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap break-words ${isMe ? 'bg-amber-600 text-white rounded-tr-none' : 'bg-white text-stone-800 border border-stone-200 rounded-tl-none'} shadow-sm">${renderChatTextWithLinks(m.text)}</div>`
+? `<div class="p-2 sm:p-3 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap break-words ${isMe ? 'bg-amber-100 text-amber-950 rounded-tr-none' : 'bg-white text-stone-800 border border-stone-200 rounded-tl-none'} shadow-sm">${renderChatTextWithLinks(m.text)}</div>`
   : '';
 
 
@@ -418,12 +420,9 @@ const textHtml = m.text
           ${replyHtml}
           ${messageHtml}
 <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <button type="button" data-like-id="${escapeHtml(m.id)}" class="text-xs hover:scale-105 transition">
-              ${(Array.isArray(m.likedBy) && state.currentUser && m.likedBy.includes(state.currentUser.uid)) ? '❤️' : '🤍'} ${Array.isArray(m.likedBy) ? m.likedBy.length : 0}
-            </button>
-            ${!isRecalled ? `
+          ${!isRecalled ? `
   <button type="button" data-like-id="${escapeHtml(m.id)}" class="text-xs hover:scale-105 transition">
-    ${(Array.isArray(m.likedBy) && state.currentUser && m.likedBy.includes(state.currentUser.uid)) ? '❤️' : '🤍'} ${Array.isArray(m.likedBy) ? m.likedBy.length : 0}
+  ${(Array.isArray(m.likedBy) && m.likedBy.length > 0) ? '❤️' : '🤍'} ${Array.isArray(m.likedBy) ? m.likedBy.length : 0}
   </button>
   <button type="button" data-reply-id="${escapeHtml(m.id)}" class="text-[11px] sm:text-xs text-amber-700 hover:underline">↩ Trả lời</button>
 
@@ -608,7 +607,7 @@ const messageRef = await addDoc(collection(db, 'chatMessages'), {
 // Gửi thông báo chat chung; lỗi thông báo không làm mất tin nhắn đã gửi.
 try {
   const idToken = await user.getIdToken();
-
+console.log('[CHAT] Bắt đầu gửi yêu cầu thông báo:', messageRef.id);
   const notifyResponse = await fetch(
     'https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/group-chat/notify',
     {
@@ -833,6 +832,60 @@ function showPrivateChatStatus(message, isError = false) {
   status.classList.toggle('text-stone-500', !isError);
 }
 
+function updatePrivateReplyPreview() {
+  const preview = document.getElementById('private-chat-reply-preview');
+  if (!preview) return;
+
+  if (!privateReplyingTo) {
+    preview.classList.add('hidden');
+    preview.innerHTML = '';
+    return;
+  }
+
+  preview.classList.remove('hidden');
+  preview.innerHTML = `
+    <div class="flex items-center justify-between gap-3">
+      <div class="min-w-0 border-l-4 border-amber-500 pl-2">
+        <p class="font-semibold text-amber-800">
+          Đang trả lời ${escapeHtml(privateReplyingTo.senderName)}
+        </p>
+        <p class="truncate text-stone-600">
+          ${escapeHtml(privateReplyingTo.text || 'Tin nhắn đính kèm')}
+        </p>
+      </div>
+      <button
+        type="button"
+        id="private-chat-cancel-reply"
+        class="shrink-0 px-2 text-stone-500 hover:text-red-600"
+        aria-label="Hủy trả lời"
+      >✕</button>
+    </div>
+  `;
+
+  document.getElementById('private-chat-cancel-reply').onclick = () => {
+    privateReplyingTo = null;
+    updatePrivateReplyPreview();
+  };
+}
+
+function setPrivateReplyTo(messageId) {
+  const message = state.privateMessages?.find(item => item.id === messageId);
+
+  if (!message) {
+    showPrivateChatStatus('Không tìm thấy tin nhắn cần trả lời.', 'error');
+    return;
+  }
+
+  privateReplyingTo = {
+    messageId: message.id,
+    senderName: message.senderName || 'Thành viên',
+    text: message.text || ''
+  };
+
+  updatePrivateReplyPreview();
+  document.getElementById('private-chat-input')?.focus();
+}
+
 
 function renderPrivateChatMessages(messages) {
   const container = document.getElementById('private-chat-messages');
@@ -854,7 +907,7 @@ function renderPrivateChatMessages(messages) {
     const canDeleteMedia = mine || isAdmin;
     const recalled = message.recalled === true;
     const likedBy = Array.isArray(message.likedBy) ? message.likedBy : [];
-    const liked = likedBy.includes(user.uid);
+    const liked = likedBy.length > 0;
 
     const reply = message.replyTo;
     const replyHtml = reply
@@ -909,7 +962,7 @@ function renderPrivateChatMessages(messages) {
         <div class="max-w-[85%] min-w-0">
           <div class="rounded-2xl px-3 py-2 ${
             mine
-              ? 'bg-amber-600 text-white'
+              ? 'bg-amber-100 text-amber-950'
               : 'border border-stone-200 bg-white text-stone-800'
           }">
             <p class="mb-1 text-xs ${
@@ -1260,9 +1313,6 @@ function createPrivateCallPeerConnection(callId, remoteDescriptionReady = false)
   return pc;
 }
 
-
-
-
 async function addPrivateCallLocalAudio(pc, withVideo = false) {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new Error('Trình duyệt không hỗ trợ microphone/camera hoặc cần HTTPS.');
@@ -1361,10 +1411,6 @@ async function addPrivateCallLocalAudio(pc, withVideo = false) {
 
   return hasVideo;
 }
-
-
-
-
 
 function listenPrivateCallCandidates(collectionName) {
   if (!privateCallDocId || !privateCallPeerConnection) return;
@@ -1705,7 +1751,7 @@ const pc = createPrivateCallPeerConnection(callRef.id);
 withVideo = await addPrivateCallLocalAudio(pc, withVideo);
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-
+console.log('[VOICE CALL] Chuẩn bị cập nhật offer');
     await updateDoc(callRef, {
       offer: {
         type: pc.localDescription.type,
@@ -1713,26 +1759,35 @@ withVideo = await addPrivateCallLocalAudio(pc, withVideo);
       },
       updatedAt: serverTimestamp()
     });
-
+console.log('[VOICE CALL] Đã cập nhật offer thành công');
 // Gửi thông báo FCM nền, không làm gián đoạn cuộc gọi nếu thất bại.
+
+console.log('[VOICE CALL] Bắt đầu gửi FCM, callId:', callRef.id);
 void (async () => {
   try {
-    const idToken = await user.getIdToken();
+    console.log('[FCM DEBUG] UID:', user.uid);
 
-    const response = await fetch(
-      "https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/private-call/notify",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`
-        },
-        body: JSON.stringify({ callId: callRef.id })
-      }
-    );
+const idToken = await user.getIdToken(true);
 
-    const result = await response.json().catch(() => ({}));
+console.log('[FCM DEBUG] Có ID token:', !!idToken);
+console.log('[FCM DEBUG] Độ dài ID token:', idToken?.length);
 
+const response = await fetch(
+  "https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/private-call/notify",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
+    },
+    body: JSON.stringify({ callId: callRef.id })
+  }
+);
+
+console.log('[FCM DEBUG] HTTP:', response.status);
+
+const result = await response.json().catch(() => ({}));
+console.log('[FCM DEBUG] Phản hồi:', result);
     if (!response.ok) {
       console.warn(
         "[FCM] Chưa gửi được thông báo:",
@@ -2300,7 +2355,8 @@ const messages = snapshot.docs.map(item => {
 });
 
 
-      renderPrivateChatMessages(messages);
+	state.privateMessages = messages;
+	renderPrivateChatMessages(messages);
     }, error => {
       console.error('Lỗi tải chat riêng:', error);
       showPrivateChatStatus(
@@ -2464,7 +2520,7 @@ try {
     avatar: profile.photoURL || '',
     text,
     createdAt: serverTimestamp(),
-    replyTo: null,
+    replyTo: privateReplyingTo ? { ...privateReplyingTo } : null,
     ...mediaData
   }
 );
@@ -2490,6 +2546,11 @@ try {
   );
 
   const notifyResult = await notifyResponse.json();
+console.log('[CALL] Worker notify response:', {
+  httpStatus: notifyResponse.status,
+  ok: notifyResponse.ok,
+  result: notifyResult
+});
 
   if (!notifyResponse.ok) {
     console.warn(
@@ -2512,7 +2573,9 @@ try {
       input.focus();
     }
 
-    selectedPrivateChatMedia = null;
+	selectedPrivateChatMedia = null;
+	privateReplyingTo = null;
+	updatePrivateReplyPreview();
 
     const mediaInput = document.getElementById('private-chat-media-input');
     const mediaButton = document.getElementById('private-chat-media-button');

@@ -5,6 +5,7 @@ import { collection, doc, getDocs, addDoc, setDoc, deleteDoc, updateDoc, query, 
 
 
 const POST_WORKER_URL = 'https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev';
+const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='50' fill='%23f5f5f4'/%3E%3Ccircle cx='50' cy='37' r='17' fill='%23a8a29e'/%3E%3Cpath d='M18 88c3-19 15-29 32-29s29 10 32 29' fill='%23a8a29e'/%3E%3C/svg%3E";
 
 async function callPostWorker(path, payload) {
   
@@ -167,7 +168,7 @@ function displayPosts() {
       <article class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
         <div class="p-4 flex items-center justify-between border-b border-stone-100">
           <div class="flex items-center gap-3 min-w-0">
-            <img src="${escapeHtml(post.authorAvatar || 'store/logo.png')}" alt="Avatar" class="w-10 h-10 rounded-full bg-amber-100 object-cover">
+            <img src="${escapeHtml(post.authorAvatar || DEFAULT_AVATAR)}" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" alt="Avatar" class="w-10 h-10 rounded-full bg-amber-100 object-cover">
             <div class="min-w-0">
               <h4 class="font-bold text-sm text-stone-800">${escapeHtml(post.authorName || 'Thành viên')}</h4>
               <p class="text-xs text-stone-400">${escapeHtml(getPostDate(post.createdAt))}</p>
@@ -439,7 +440,7 @@ export async function handleAddComment(event, postId) {
     await addDoc(collection(db, 'posts', postId, 'comments'), {
       authorId: state.currentUser.uid,
       authorName: state.currentUser.displayName || 'Thành viên',
-      authorAvatar: state.currentUser.photoURL || 'store/logo.png',
+      authorAvatar: state.currentUser.photoURL || '',
       text,
       createdAt: serverTimestamp()
     });
