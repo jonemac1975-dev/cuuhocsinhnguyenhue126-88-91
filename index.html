@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Custom Style -->
   <link rel="stylesheet" href="css/styles.css">
+<!-- Icon trên Iphone -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
   <style>
     body {
@@ -295,13 +297,15 @@
       </div>
 
       <!-- Desktop Navigation Tabs -->
+	
+      <nav class="hidden md:flex items-center space-x-1 bg-amber-100/40 p-1 rounded-2xl border border-amber-200/40">
 	<button onclick="window.location.reload()"
         class="px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-violet-700 hover:bg-violet-100 hover:text-violet-900"
         title="Về trang chủ">
 	<i class="fa-solid fa-house"></i>
 	<span>HOME</span>
 	</button>
-      <nav class="hidden md:flex items-center space-x-1 bg-amber-100/40 p-1 rounded-2xl border border-amber-200/40">
+
 	<button onclick="switchTab('feed')" id="nav-feed" class="tab-btn active px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-stone-600 hover:text-amber-700">
           <i class="fa-solid fa-newspaper"></i> <span>Đăng Tin</span>
         </button>
@@ -484,7 +488,7 @@
 
       <!-- Danh sách clip -->
 <div id="tiktok-list"
-     class="flex gap-3 overflow-x-auto p-4 scrollbar-thin [&>*]:[zoom:0.75]">
+     class="flex gap-3 overflow-x-auto p-4 scrollbar-thin">
   <p class="text-xs text-stone-500 italic p-2">Đang tải clip...</p>
 </div>
 
@@ -753,7 +757,7 @@
               id="private-chat-member"
               class="max-w-[155px] rounded-lg border border-stone-300 bg-white px-2 py-2 text-xs text-stone-700"
             >
-              <option value="">Chọn thành viên</option>
+              <option value="">Private box</option>
             </select>
           </div>
 

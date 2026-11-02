@@ -226,8 +226,8 @@ const deleteButton = canDeleteClip
       `;
 
     return `
-      <article class="w-[220px] min-w-[220px] overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-        <div class="relative aspect-[9/16] w-full overflow-hidden bg-stone-100">
+      <article class="w-[165px] min-w-[165px] shrink-0 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+        <div class="relative aspect-[9/16] w-full overflow-hidden rounded-2xl bg-black">
           ${player}
         </div>
 

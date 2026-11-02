@@ -2269,7 +2269,7 @@ function populatePrivateChatMemberSelect() {
   const currentValue = privateChatTarget?.uid || '';
 
   select.innerHTML = `
-    <option value="">-- Chọn thành viên để trò chuyện --</option>
+    <option value="">-- Private box --</option>
     ${members.map(member => `
       <option value="${escapeHtml(member.uid)}">
         ${escapeHtml(member.name || 'Thành viên')}
