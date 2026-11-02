@@ -37,7 +37,7 @@ export async function updateDirectoryList() {
       facebook: m.facebook || '',
       status: m.status || ''
     }));
-
+window.dispatchEvent(new Event('directory-updated'));
     grid.innerHTML = state.directory.map(m => {
       const pending = state.isAdmin && m.status === 'pending';
       const profile = memberProfiles.find(p => (p.uid || p.id) === (m.uid || m.id));

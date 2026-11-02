@@ -6,7 +6,7 @@
   <title>Kỷ Niệm Cựu Học Sinh - Dòng Thời Gian & Kết Nối</title>
 
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Be Vietnam Pro for refined typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,10 +281,9 @@
   <script type="module" src="js/memory-album.js"></script>
 </head>
 <body class="bg-gradient-to-br from-amber-50/70 via-stone-50 to-orange-50/50 text-stone-800 flex flex-col min-h-screen selection:bg-amber-200 selection:text-amber-900">
-
   <!-- Header / Navigation Bar -->
   <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-xl border-b border-amber-100/80 shadow-sm transition-all">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+<div class="w-full max-w-[1600px] mx-auto px-4 lg:px-6 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center space-x-3 cursor-pointer group" onclick="switchTab('feed')">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-500 to-amber-400 flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform duration-300">
           <i class="fa-solid fa-graduation-cap text-xl"></i>
@@ -296,8 +295,14 @@
       </div>
 
       <!-- Desktop Navigation Tabs -->
+	<button onclick="window.location.reload()"
+        class="px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-violet-700 hover:bg-violet-100 hover:text-violet-900"
+        title="Về trang chủ">
+	<i class="fa-solid fa-house"></i>
+	<span>HOME</span>
+	</button>
       <nav class="hidden md:flex items-center space-x-1 bg-amber-100/40 p-1 rounded-2xl border border-amber-200/40">
-        <button onclick="switchTab('feed')" id="nav-feed" class="tab-btn active px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-stone-600 hover:text-amber-700">
+	<button onclick="switchTab('feed')" id="nav-feed" class="tab-btn active px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 text-stone-600 hover:text-amber-700">
           <i class="fa-solid fa-newspaper"></i> <span>Đăng Tin</span>
         </button>
         <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200 flex items-center space-x-2 relative text-stone-600 hover:text-amber-700">
@@ -478,9 +483,10 @@
       </div>
 
       <!-- Danh sách clip -->
-      <div id="tiktok-list" class="flex gap-3 overflow-x-auto p-4 scrollbar-thin">
-        <p class="text-xs text-stone-500 italic p-2">Đang tải clip...</p>
-      </div>
+<div id="tiktok-list"
+     class="flex gap-3 overflow-x-auto p-4 scrollbar-thin [&>*]:[zoom:0.75]">
+  <p class="text-xs text-stone-500 italic p-2">Đang tải clip...</p>
+</div>
 
       <!-- Form đăng clip: mặc định ẩn -->
       <div id="tiktok-form-panel" class="hidden border-t border-stone-100 p-4 bg-stone-50/50">
@@ -514,13 +520,13 @@
     </section>
 
     <!-- TIÊU ĐỀ DÒNG THỜI GIAN -->
-    <div class="mb-5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 p-3.5 text-white shadow-sm flex items-center justify-between">
-      <h3 class="flex items-center gap-2.5 font-bold text-base tracking-wide">
-        <i class="fa-solid fa-quote-left text-amber-200 text-lg"></i>
-        Dòng thời gian
-      </h3>
-      <span class="text-xs bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm font-medium">Nguyễn Huệ 12/6</span>
-    </div>
+   <div class="mb-5 w-full md:w-1/4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 p-3.5 text-white shadow-sm flex items-center justify-between">
+  <h3 class="flex items-center gap-2.5 font-bold text-base tracking-wide whitespace-nowrap">
+    <i class="fa-solid fa-quote-left text-amber-200 text-lg"></i>
+    Dòng thời gian
+  </h3>
+  <span class="text-xs bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm font-medium whitespace-nowrap">Nguyễn Huệ 12/6</span>
+</div>
 
     <div class="grid grid-cols-1 lg:grid-cols-1 gap-5 items-start">
       <!-- Cột nội dung chính -->
@@ -570,43 +576,6 @@
 
         <!-- Tab Feed giữ lại để tương thích với hệ thống chuyển tab -->
         <div id="tab-feed" class="tab-content hidden"></div>
-
-        <!-- Tab 2: Group Chat -->
-        <!-- Phần 1: Chat riêng 1-1 -->
-
-
-
-<div id="chat-mode-switcher" class="hidden flex flex-col gap-2 mb-3">
-
-  <!-- Tiêu đề -->
-  <div>
-    <h3 class="inline-block whitespace-nowrap rounded-lg bg-gradient-to-r from-violet-600 to-purple-700 px-4 py-2.5 text-xs font-bold tracking-wider text-white shadow-sm">
-      NƠI TRÒ CHUYỆN
-    </h3>
-  </div>
-
-  <!-- Hai nút chuyển chế độ -->
-  <div class="flex flex-wrap items-center gap-2">
-    <button
-      id="chat-mode-group"
-      type="button"
-      class="whitespace-nowrap rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-green-700 disabled:opacity-50"
-    >
-      Chat nhóm
-    </button>
-
-    <button
-      id="chat-mode-private"
-      type="button"
-      class="whitespace-nowrap rounded-lg bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-700 shadow-sm hover:bg-stone-200 disabled:opacity-50"
-    >
-      Chat riêng
-    </button>
-  </div>
-
-</div>
-
-
 
 <!-- GLOBAL PRIVATE CALL PANEL -->
 <div
@@ -714,207 +683,338 @@
 </div>
 <!-- END GLOBAL PRIVATE CALL PANEL -->
 
-<div id="private-chat-panel" class="hidden overflow-hidden rounded-2xl border border-stone-200 bg-white">
-
-
-  <!-- Khu vực chọn thành viên và gọi điện -->
-  <!-- KHU VỰC CHỌN THÀNH VIÊN VÀ GỌI ĐIỆN -->
-<div class="border-b border-stone-200 bg-gradient-to-br from-white to-indigo-50/50 p-4">
-
-  <div class="mb-4 flex items-center gap-3">
-    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
-      <i class="fa-solid fa-headset text-lg"></i>
-    </div>
-
-    <div>
-      <h3 class="font-bold text-stone-800">Liên lạc riêng</h3>
-      <p class="text-xs text-stone-500">Gọi thoại hoặc trò chuyện video</p>
-    </div>
-  </div>
-
-  <label
-    for="private-chat-member"
-    class="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-500"
-  >
-    Chọn thành viên
-  </label>
-
-  <div class="flex items-center gap-2">
-  <select
-    id="private-chat-member"
-    class="min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-  >
-    <option value="">-- Chọn người muốn liên lạc --</option>
-  </select>
-
-  <button
-    id="private-call-start"
-    type="button"
-    title="Gọi thoại"
-    aria-label="Gọi thoại"
-    class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 px-2.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    <i class="fa-solid fa-phone"></i>
-    Gọi thoại
-  </button>
-
-  <button
-    id="private-video-call-start"
-    type="button"
-    title="Gọi video"
-    aria-label="Gọi video"
-    class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 px-2.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    <i class="fa-solid fa-video"></i>
-    Video
-  </button>
+<!-- TAB CHAT: KHUNG CHAT CHUNG -->
+<div id="tab-chat" class="tab-content hidden">
+<div class="mb-5 w-full md:w-1/4 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-3.5 text-white shadow-sm flex items-center justify-between">
+  <h3 class="flex items-center gap-2.5 font-bold text-base tracking-wide whitespace-nowrap">
+    <i class="fa-solid fa-comments text-purple-200 text-lg"></i>
+    CHAT LỚP
+  </h3>
 </div>
-
-  <p
-    id="private-chat-status"
-    class="mt-3 flex items-center gap-2 text-xs text-stone-500"
-    aria-live="polite"
+  <div
+    id="chat-workspace"
+    class="flex h-[85vh] min-h-[520px] overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
   >
-    <i class="fa-solid fa-circle-info text-indigo-400"></i>
-    Chọn thành viên để bắt đầu trò chuyện.
-  </p>
-</div>
-<!-- END KHU VỰC GỌI ĐIỆN -->
 
-  <!-- Danh sách tin nhắn riêng -->
-  <div
-    id="private-chat-messages"
-    class="h-[55vh] min-h-64 overflow-y-auto space-y-3 bg-stone-50 p-3"
-  >
-    <p class="py-6 text-center text-sm text-stone-400">
-      Tin nhắn riêng sẽ hiển thị tại đây.
-    </p>
-  </div>
+    <!-- DANH SÁCH THÀNH VIÊN: DESKTOP -->
+    <aside class="hidden w-48 shrink-0 flex-col border-r border-stone-100 bg-stone-50/50 sm:flex">
 
-  <!-- Trạng thái gửi ảnh/video -->
-  <div
-    id="private-chat-media-status"
-    class="hidden px-3 pt-2 text-xs"
-    role="status"
-  ></div>
+      <div class="border-b border-stone-100 bg-white p-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-stone-800">
+          Thành viên
+        </h3>
+        <p id="chat-member-count" class="mt-0.5 text-[11px] text-stone-400">
+          Đang tải...
+        </p>
+      </div>
 
-  <!-- Xem trước tin nhắn đang trả lời trong chat riêng -->
-  <div
-    id="private-chat-reply-preview"
-    class="hidden mx-3 mt-2 rounded-lg border-l-4 border-amber-500 bg-amber-50 p-2"
-  ></div>
+      <div
+        id="chat-member-list"
+        class="flex-1 space-y-1 overflow-y-auto p-2"
+      >
+        <p class="p-2 text-xs italic text-stone-400">
+          Đang tải thành viên...
+        </p>
+      </div>
 
-  <!-- Thanh gửi tin nhắn riêng -->
-  <form id="private-chat-form" class="flex flex-wrap gap-2 border-t border-stone-200 p-3">
-    <input
-      id="private-chat-media-input"
-      type="file"
-      accept="image/*,video/*"
-      class="hidden"
-    />
+    </aside>
 
-    <button
-      id="private-chat-media-button"
-      type="button"
-      title="Gửi ảnh hoặc clip"
-      class="shrink-0 rounded-xl border border-stone-300 px-3 py-2 text-lg hover:bg-stone-100"
-    >
-      📎
-    </button>
+    <!-- VÙNG NỘI DUNG BÊN PHẢI -->
+    <div class="relative flex min-w-0 flex-1 flex-col">
 
-    <input
-      id="private-chat-input"
-      type="text"
-      maxlength="5000"
-      autocomplete="off"
-      placeholder="Nhập tin nhắn riêng..."
-      class="min-w-0 flex-1 rounded-xl border border-stone-300 px-3 py-2 text-sm"
-    />
+      <!-- CHAT NHÓM -->
+      <div
+        id="group-chat-panel"
+        class="flex min-h-0 flex-1 flex-col overflow-hidden bg-white"
+      >
 
-    <button
-      type="submit"
-      class="shrink-0 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
-    >
-      Gửi
-    </button>
-  </form>
+        <!-- TIÊU ĐỀ CHAT NHÓM + CHỌN THÀNH VIÊN MOBILE -->
+        <div class="flex items-center justify-between gap-2 border-b border-stone-100 bg-amber-50/40 p-3.5">
 
-</div>
+          <div class="flex min-w-0 items-center gap-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-400 text-base font-bold text-white shadow-sm">
+              <i class="fa-solid fa-comments"></i>
+            </div>
 
+            <div class="min-w-0">
+              <h3 class="text-sm font-bold text-stone-800">
+                Group Chat
+              </h3>
 
-	<!-- Phần 2: Chat Nhóm -->
-        <div id="tab-chat" class="tab-content hidden">
-	<div id="group-chat-panel" class="bg-white rounded-2xl shadow-sm border border-stone-200/80 h-[85vh] flex overflow-hidden">
-            <aside class="w-48 shrink-0 border-r border-stone-100 bg-stone-50/50 flex flex-col">
-              <div class="p-3 border-b border-stone-100 bg-white">
-                <h3 class="font-bold text-stone-800 text-xs tracking-wider uppercase">Thành viên</h3>
-                <p id="chat-member-count" class="text-[11px] text-stone-400 mt-0.5">Đang tải...</p>
-              </div>
-              <div id="chat-member-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-                <p class="text-xs text-stone-400 p-2 italic">Đang tải thành viên...</p>
-              </div>
-            </aside>
-            <div class="flex-1 min-w-0 flex flex-col">
-              <div class="p-3.5 border-b border-stone-100 bg-amber-50/40 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                  <div class="w-9 h-9 rounded-xl bg-amber-400 text-white flex items-center justify-center font-bold text-base shadow-sm"><i class="fa-solid fa-comments"></i></div>
-                  <div>
-                    <h3 class="font-bold text-stone-800 text-sm">Chat box</h3>
-                    <p class="text-[11px] text-emerald-600 font-medium flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse"></span>Trực tuyến thời gian thực</p>
-                  </div>
-                </div>
-              </div>
-              <div id="chat-messages" class="flex-grow p-4 overflow-y-auto space-y-3 bg-stone-50/30"></div>
-              <div id="chat-reply-preview" class="hidden px-3 py-2 bg-amber-50 border-t border-amber-200 text-xs"></div>
-
-              <form id="chat-form" onsubmit="handleSendMessage(event)" class="p-3 bg-white border-t border-stone-100 flex items-center space-x-2 relative">
-                <div class="relative shrink-0">
-                  <button type="button" id="chat-sticker-toggle" class="w-9 h-9 rounded-xl border border-stone-200 hover:bg-amber-50 text-lg transition flex items-center justify-center" aria-label="Mở sticker">😊</button>
-                  <div id="chat-sticker-panel" class="hidden absolute bottom-12 left-0 z-50 w-64 rounded-2xl border border-stone-200 bg-white shadow-xl p-3">
-                    <p class="text-xs font-semibold text-stone-600 mb-2">Sticker nhanh</p>
-
-                    <div class="grid grid-cols-3 gap-2">
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f602" aria-label="Cười ra nước mắt">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f602.png" alt="Cười ra nước mắt" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f60d" aria-label="Mắt hình trái tim">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f60d.png" alt="Mắt hình trái tim" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f970" aria-label="Mặt yêu thương">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f970.png" alt="Mặt yêu thương" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f44d" aria-label="Thích">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f44d.png" alt="Thích" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="2764-fe0f" aria-label="Trái tim">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/2764.png" alt="Trái tim" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f389" aria-label="Chúc mừng">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f389.png" alt="Chúc mừng" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f64f" aria-label="Cảm ơn">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f64f.png" alt="Cảm ơn" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f923" aria-label="Cười lăn">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f923.png" alt="Cười lăn" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                      <button type="button" class="chat-sticker-option rounded-xl p-1.5 hover:bg-amber-50 transition" data-sticker-id="1f917" aria-label="Mặt ôm">
-                        <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f917.png" alt="Mặt ôm" class="w-12 h-12 object-contain mx-auto">
-                      </button>
-                    </div>
-
-                    <p class="text-[10px] text-stone-400 mt-2 text-center">Chọn biểu tượng để thêm vào ô chat</p>
-                  </div>
-                </div>
-
-                <input type="file" id="chat-media-input" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" hidden>
-                <button type="button" id="chat-media-button" class="w-9 h-9 shrink-0 rounded-xl border border-stone-200 hover:bg-amber-50 text-base transition flex items-center justify-center" aria-label="Đính kèm ảnh hoặc clip" title="Gửi ảnh hoặc clip">📎</button>
-                <input type="text" id="chat-input" placeholder="Nhập tin nhắn với cả lớp..." class="flex-grow min-w-0 px-3.5 py-2 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-xs sm:text-sm">
-                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl transition font-semibold text-xs shrink-0 shadow-sm"><i class="fa-solid fa-paper-plane"></i></button>
-              </form>
+              <p class="flex items-center text-[11px] font-medium text-emerald-600">
+                <span class="mr-1.5 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+                Online
+              </p>
             </div>
           </div>
+
+          <div class="shrink-0 sm:hidden">
+            <select
+              id="private-chat-member"
+              class="max-w-[155px] rounded-lg border border-stone-300 bg-white px-2 py-2 text-xs text-stone-700"
+            >
+              <option value="">Chọn thành viên</option>
+            </select>
+          </div>
+
         </div>
+
+        <!-- TIN NHẮN NHÓM -->
+        <div
+          id="chat-messages"
+          class="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain bg-stone-50/30 p-4"
+        ></div>
+
+        <div
+          id="chat-reply-preview"
+          class="hidden border-t border-amber-200 bg-amber-50 px-3 py-2 text-xs"
+        ></div>
+
+        <!-- FORM CHAT NHÓM -->
+        <form
+          id="chat-form"
+          onsubmit="handleSendMessage(event)"
+          class="relative flex items-center space-x-2 border-t border-stone-100 bg-white p-3"
+        >
+
+          <div class="relative shrink-0">
+
+            <button
+              type="button"
+              id="chat-sticker-toggle"
+              class="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 text-lg transition hover:bg-amber-50"
+              aria-label="Mở sticker"
+            >😊</button>
+
+            <div
+              id="chat-sticker-panel"
+              class="absolute bottom-12 left-0 z-50 hidden w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl"
+            >
+              <p class="mb-2 text-xs font-semibold text-stone-600">
+                Sticker nhanh
+              </p>
+
+              <div class="grid grid-cols-3 gap-2">
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f602" aria-label="Cười ra nước mắt">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f602.png" alt="Cười ra nước mắt" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f60d" aria-label="Mắt hình trái tim">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f60d.png" alt="Mắt hình trái tim" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f970" aria-label="Mặt yêu thương">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f970.png" alt="Mặt yêu thương" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f44d" aria-label="Thích">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f44d.png" alt="Thích" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="2764-fe0f" aria-label="Trái tim">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/2764.png" alt="Trái tim" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f389" aria-label="Chúc mừng">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f389.png" alt="Chúc mừng" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f64f" aria-label="Cảm ơn">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f64f.png" alt="Cảm ơn" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f923" aria-label="Cười lăn">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f923.png" alt="Cười lăn" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+                <button type="button" class="chat-sticker-option rounded-xl p-1.5 transition hover:bg-amber-50" data-sticker-id="1f917" aria-label="Mặt ôm">
+                  <img src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@latest/assets/72x72/1f917.png" alt="Mặt ôm" class="mx-auto h-12 w-12 object-contain">
+                </button>
+
+              </div>
+
+              <p class="mt-2 text-center text-[10px] text-stone-400">
+                Chọn biểu tượng để thêm vào ô chat
+              </p>
+            </div>
+          </div>
+
+          <input
+            type="file"
+            id="chat-media-input"
+            accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+            hidden
+          >
+
+          <button
+            type="button"
+            id="chat-media-button"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-base transition hover:bg-amber-50"
+            aria-label="Đính kèm ảnh hoặc clip"
+            title="Gửi ảnh hoặc clip"
+          >📎</button>
+
+          <input
+            type="text"
+            id="chat-input"
+            placeholder="Nhập tin nhắn với cả lớp..."
+            class="min-w-0 flex-grow rounded-xl border border-stone-200 px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 sm:text-sm"
+          >
+
+          <button
+            type="submit"
+            class="shrink-0 rounded-xl bg-amber-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-700"
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+
+        </form>
+
+      </div>
+      <!-- END CHAT NHÓM -->
+
+
+      <!-- CHAT RIÊNG -->
+      <div
+        id="private-chat-panel"
+        class="hidden min-h-0 flex-1 flex-col overflow-hidden bg-white"
+      >
+
+        <!-- TIÊU ĐỀ CHAT RIÊNG -->
+        <div class="flex items-center justify-between gap-2 border-b border-stone-200 bg-indigo-50/50 p-3.5">
+
+          <div class="flex min-w-0 items-center gap-3">
+
+            <button
+              id="private-chat-back"
+              type="button"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:bg-stone-100"
+              title="Quay lại chat nhóm"
+              aria-label="Quay lại chat nhóm"
+            >
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <img
+              id="private-chat-target-avatar"
+              src="https://api.dicebear.com/7.x/bottts/svg?seed=Member"
+              alt="Avatar"
+              class="h-10 w-10 shrink-0 rounded-xl bg-indigo-100 object-cover"
+            >
+
+            <div class="min-w-0">
+              <h3 class="truncate font-bold text-stone-800">
+                Private box
+              </h3>
+
+              <p
+                id="private-chat-target-name"
+                class="truncate text-xs font-semibold text-indigo-600"
+              >
+                Chưa chọn thành viên
+              </p>
+            </div>
+          </div>
+
+          <div class="flex shrink-0 items-center gap-2">
+
+            <button
+              id="private-call-start"
+              type="button"
+              title="Gọi thoại"
+              aria-label="Gọi thoại"
+              class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-green-600 px-2.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-green-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <i class="fa-solid fa-phone"></i>
+              <span class="hidden sm:inline">Gọi thoại</span>
+            </button>
+
+            <button
+              id="private-video-call-start"
+              type="button"
+              title="Gọi video"
+              aria-label="Gọi video"
+              class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-violet-600 px-2.5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <i class="fa-solid fa-video"></i>
+              <span class="hidden sm:inline">Video</span>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- TIN NHẮN RIÊNG -->
+        <div
+          id="private-chat-messages"
+          class="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain bg-stone-50 p-3"
+        >
+          <p class="py-6 text-center text-sm text-stone-400">
+            Tin nhắn riêng sẽ hiển thị tại đây.
+          </p>
+        </div>
+
+        <div
+          id="private-chat-media-status"
+          class="hidden px-3 pt-2 text-xs"
+          role="status"
+        ></div>
+
+        <div
+          id="private-chat-reply-preview"
+          class="mx-3 mt-2 hidden rounded-lg border-l-4 border-amber-500 bg-amber-50 p-2"
+        ></div>
+
+        <!-- FORM CHAT RIÊNG -->
+        <form
+          id="private-chat-form"
+          class="flex flex-wrap gap-2 border-t border-stone-200 p-3"
+        >
+
+          <input
+            id="private-chat-media-input"
+            type="file"
+            accept="image/*,video/*"
+            class="hidden"
+          >
+
+          <button
+            id="private-chat-media-button"
+            type="button"
+            title="Gửi ảnh hoặc clip"
+            class="shrink-0 rounded-xl border border-stone-300 px-3 py-2 text-lg hover:bg-stone-100"
+          >📎</button>
+
+          <input
+            id="private-chat-input"
+            type="text"
+            maxlength="5000"
+            autocomplete="off"
+            placeholder="Nhập tin nhắn riêng..."
+            class="min-w-0 flex-1 rounded-xl border border-stone-300 px-3 py-2 text-sm"
+          >
+
+          <button
+            type="submit"
+            class="shrink-0 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+          >
+            Gửi
+          </button>
+
+        </form>
+
+      </div>
+      <!-- END CHAT RIÊNG -->
+
+    </div>
+    <!-- END VÙNG NỘI DUNG BÊN PHẢI -->
+
+  </div>
+  <!-- END CHAT WORKSPACE -->
+
+</div>
+<!-- END TAB CHAT -->
+
 
         <!-- Tab 3: Events -->
         <div id="tab-events" class="tab-content hidden">
@@ -1231,10 +1331,16 @@
   </main>
 
   <!-- Navigation Bar Mobile -->
+
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200/80 px-3 py-2 flex justify-around z-40 shadow-lg">
-    <button onclick="switchTab('feed')" id="m-nav-feed" class="mobile-nav-btn text-amber-600 flex flex-col items-center">
+<button onclick="window.location.reload()"
+        class="mobile-nav-btn text-violet-700 flex flex-col items-center">
+  <i class="fa-solid fa-house text-base"></i>
+  <span class="text-[10px] font-semibold mt-0.5">HOME</span>
+</button>
+<button onclick="switchTab('feed')" id="m-nav-feed" class="mobile-nav-btn text-amber-600 flex flex-col items-center">
       <i class="fa-solid fa-newspaper text-base"></i><span class="text-[10px] font-semibold mt-0.5">Bảng Tin</span>
-    </button>
+</button>
     <button onclick="switchTab('chat')" id="m-nav-chat" class="mobile-nav-btn text-stone-400 flex flex-col items-center">
       <i class="fa-solid fa-comments text-base"></i><span class="text-[10px] font-semibold mt-0.5">Chat Lớp</span>
     </button>

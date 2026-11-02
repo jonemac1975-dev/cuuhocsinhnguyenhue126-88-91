@@ -53,67 +53,22 @@ function setPrivateChatMediaStatus(message, type = '') {
 function setChatMode(mode) {
   const isPrivate = mode === 'private';
 
-  document.getElementById('group-chat-panel')
-    ?.classList.toggle('hidden', isPrivate);
+  const groupPanel = document.getElementById('group-chat-panel');
+  const privatePanel = document.getElementById('private-chat-panel');
 
-  document.getElementById('private-chat-panel')
-    ?.classList.toggle('hidden', !isPrivate);
-
-  document.getElementById('private-chat-notice')
-    ?.classList.toggle('hidden', !isPrivate);
-
-  const groupButton = document.getElementById('chat-mode-group');
-  const privateButton = document.getElementById('chat-mode-private');
-
-  groupButton?.classList.toggle('bg-amber-600', !isPrivate);
-  groupButton?.classList.toggle('text-white', !isPrivate);
-  groupButton?.classList.toggle('bg-stone-100', isPrivate);
-  groupButton?.classList.toggle('text-stone-700', isPrivate);
-
-  privateButton?.classList.toggle('bg-amber-600', isPrivate);
-  privateButton?.classList.toggle('text-white', isPrivate);
-  privateButton?.classList.toggle('bg-stone-100', !isPrivate);
-  privateButton?.classList.toggle('text-stone-700', !isPrivate);
-}
-
-document.getElementById('chat-mode-group')
-  ?.addEventListener('click', () => setChatMode('group'));
-
-document.getElementById('chat-mode-private')
-  ?.addEventListener('click', () => setChatMode('private'));
-
-function populatePrivateChatMembers() {
-  const select = document.getElementById('private-chat-member');
-  const user = auth.currentUser;
-
-  if (!select || !user) return;
-
-  const currentValue = select.value;
-
-  const members = (Array.isArray(state.directory) ? state.directory : [])
-    .filter(member =>
-      member.uid &&
-      member.uid !== user.uid &&
-      member.status === 'approved'
-    )
-    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'vi'));
-
-  select.innerHTML = '<option value="">-- Danh sách --</option>';
-
-  members.forEach(member => {
-    const option = document.createElement('option');
-    option.value = member.uid;
-    option.textContent = member.name || 'Thành viên';
-    select.appendChild(option);
-  });
-
-  if (members.some(member => member.uid === currentValue)) {
-    select.value = currentValue;
+  if (groupPanel) {
+    groupPanel.classList.toggle('hidden', isPrivate);
   }
-}
 
-document.getElementById('chat-mode-private')
-  ?.addEventListener('click', populatePrivateChatMembers);
+  if (privatePanel) {
+    privatePanel.classList.toggle('hidden', !isPrivate);
+    privatePanel.classList.toggle('flex', isPrivate);
+  }
+
+  document
+    .getElementById('private-chat-notice')
+    ?.classList.toggle('hidden', !isPrivate);
+}
 
 
 function setChatMediaStatus(message, type = 'loading') {
@@ -287,6 +242,7 @@ async function deleteChatMedia(messageId) {
 }
 
 
+
 async function recallChatMessage(messageId) {
   if (!requireMemberAccess('thu hồi tin nhắn')) return;
 
@@ -302,31 +258,62 @@ async function recallChatMessage(messageId) {
     return;
   }
 
-  // Tạm thời xử lý tin nhắn văn bản và sticker.
-  // Ảnh/video cần quy trình riêng để xóa tệp Cloudinary an toàn.
-  if (['image', 'video'].includes(message.mediaType) && message.mediaUrl) {
-    alert('Tin nhắn có ảnh/video cần xử lý media riêng. Hãy dùng nút “Xóa media” hiện có.');
-    return;
-  }
-
   if (!confirm('Bạn chắc muốn thu hồi tin nhắn này không?')) return;
 
   try {
-    await updateDoc(doc(db, 'chatMessages', messageId), {
-      text: 'Tin nhắn đã được thu hồi',
-      recalled: true,
-      recalledAt: serverTimestamp(),
-      stickerId: deleteField(),
-      mediaType: deleteField(),
-      mediaUrl: deleteField(),
-      mediaPublicId: deleteField(),
-      mediaFormat: deleteField()
-    });
+    const hasMedia = Boolean(
+      message.mediaType ||
+      message.mediaUrl ||
+      message.mediaPublicId
+    );
+
+    if (hasMedia) {
+      const token = await user.getIdToken();
+
+      const response = await fetch(
+        'https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/chat/recall',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ messageId })
+        }
+      );
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result.success) {
+        console.error('[GROUP CHAT RECALL]', {
+          status: response.status,
+          response: result
+        });
+
+        throw new Error(
+          result.error || 'Thu hồi tin nhắn thất bại.'
+        );
+      }
+
+    } else {
+      await updateDoc(doc(db, 'chatMessages', messageId), {
+        text: 'Tin nhắn đã được thu hồi',
+        recalled: true,
+        recalledAt: serverTimestamp(),
+        stickerId: deleteField(),
+        mediaType: deleteField(),
+        mediaUrl: deleteField(),
+        mediaPublicId: deleteField(),
+        mediaFormat: deleteField()
+      });
+    }
+
   } catch (error) {
     console.error('Lỗi thu hồi tin nhắn:', error);
-    alert('Chưa thu hồi được tin nhắn. Bạn thử lại nhé.');
+    alert(error.message || 'Chưa thu hồi được tin nhắn. Bạn thử lại nhé.');
   }
 }
+
 
 
 function renderChatTextWithLinks(text) {
@@ -370,14 +357,18 @@ export function renderChatMessages() {
     const canDeleteMedia = isMe || state.isAdmin === true;
     const canRecall = isMe || state.isAdmin === true;
     const isRecalled = m.recalled === true;
-const member = state.directory.find(
+const member = (state.directory || []).find(
   item => item.uid === m.senderId || item.id === m.senderId
 );
 
 const avatar = escapeHtml(
   member?.avatar ||
+  member?.photoURL ||
   m.avatar ||
-  'https://api.dicebear.com/7.x/bottts/svg?seed=Member'
+  (isMe
+    ? state.currentUser?.avatar || state.currentUser?.photoURL
+    : '') ||
+  `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(m.senderId || 'member')}`
 );
     const stickerIds = ['1f602', '1f60d', '1f970', '1f44d', '2764-fe0f', '1f389', '1f64f', '1f923', '1f973', '1f917'];
     const stickerHtml = stickerIds.includes(m.stickerId)
@@ -900,9 +891,32 @@ function renderPrivateChatMessages(messages) {
     return;
   }
 
-  container.innerHTML = messages.map(message => {
-    const mine = message.senderId === user.uid;
-    const isAdmin = state.isAdmin === true;
+	container.innerHTML = messages.map(message => {
+	const mine = message.senderId === user.uid;
+	const isAdmin = state.isAdmin === true;
+	const member = (state.directory || []).find(
+  item => item.uid === message.senderId || item.id === message.senderId
+);
+
+const avatar = escapeHtml(
+  member?.avatar ||
+  member?.photoURL ||
+  message.avatar ||
+  (mine
+    ? state.currentUser?.avatar || state.currentUser?.photoURL
+    : '') ||
+  `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(message.senderId || 'member')}`
+);
+
+	const senderProfile = (state.directory || []).find(
+	member => member.uid === message.senderId
+	);
+
+ const avatarUrl =
+   message.avatar ||
+   senderProfile?.photoURL ||
+   senderProfile?.avatar ||
+   `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(message.senderId || 'member')}`;
     const canRecall = mine || isAdmin;
     const canDeleteMedia = mine || isAdmin;
     const recalled = message.recalled === true;
@@ -958,16 +972,22 @@ function renderPrivateChatMessages(messages) {
       : `${mediaHtml}${stickerHtml}${textHtml}`;
 
     return `
-      <div class="flex ${mine ? 'justify-end' : 'justify-start'}">
-        <div class="max-w-[85%] min-w-0">
+  <div class="flex items-start gap-2 ${mine ? 'flex-row-reverse' : ''}">
+    <img
+      src="${avatar}"
+      alt=""
+      class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-full bg-amber-100 object-cover mt-0.5"
+      loading="lazy"
+    >
+    <div class="max-w-[85%] min-w-0">
           <div class="rounded-2xl px-3 py-2 ${
-            mine
+	mine
               ? 'bg-amber-100 text-amber-950'
               : 'border border-stone-200 bg-white text-stone-800'
           }">
-            <p class="mb-1 text-xs ${
-              mine ? 'text-amber-100' : 'text-stone-500'
-            }">${escapeHtml(message.senderName || 'Thành viên')}</p>
+            <p class="mb-1 text-xs font-semibold ${
+	mine ? 'text-amber-800' : 'text-stone-600'
+	}">${escapeHtml(message.senderName || 'Thành viên')}</p>
 
             ${replyHtml}
 
@@ -1129,9 +1149,14 @@ async function recallPrivateChatMessage(messageId) {
 
     const result = await response.json();
 
-    if (!response.ok || !result.success) {
-      throw new Error(result.error || 'Thu hồi tin nhắn thất bại.');
-    }
+if (!response.ok || !result.success) {
+  console.error('[PRIVATE RECALL DIAGNOSTIC]', {
+    status: response.status,
+    response: result
+  });
+
+  throw new Error(result.error || 'Thu hồi tin nhắn thất bại.');
+}
 
     showPrivateChatStatus('Tin nhắn đã thu hồi.', false);
 
@@ -2225,6 +2250,38 @@ function bindPrivateCallButtons() {
 
 bindPrivateCallButtons();
 
+function populatePrivateChatMemberSelect() {
+  const select = document.getElementById('private-chat-member');
+  if (!select) return;
+
+  const currentUid = auth.currentUser?.uid;
+
+  const members = (state.directory || [])
+    .filter(member =>
+      member.uid &&
+      member.uid !== currentUid &&
+      member.status === 'approved'
+    )
+    .sort((a, b) =>
+      (a.name || '').localeCompare(b.name || '', 'vi')
+    );
+
+  const currentValue = privateChatTarget?.uid || '';
+
+  select.innerHTML = `
+    <option value="">-- Chọn thành viên để trò chuyện --</option>
+    ${members.map(member => `
+      <option value="${escapeHtml(member.uid)}">
+        ${escapeHtml(member.name || 'Thành viên')}
+      </option>
+    `).join('')}
+  `;
+
+  select.value = currentValue;
+}
+window.addEventListener('directory-updated', () => {
+  populatePrivateChatMemberSelect();
+});
 
 
 async function openPrivateChat(targetUid) {
@@ -2253,7 +2310,7 @@ async function openPrivateChat(targetUid) {
   }
 
   if (!targetUid || targetUid === user.uid) {
-    showPrivateChatStatus('Chọn một thành viên để bắt đầu trò chuyện.');
+//    showPrivateChatStatus('Chọn một thành viên để bắt đầu trò chuyện.');
     if (input) input.disabled = true;
     if (container) {
       container.innerHTML = `
@@ -2306,12 +2363,25 @@ async function openPrivateChat(targetUid) {
       }
     }
 
-    privateChatTarget = target;
-    privateChatId = chatId;
-    startPrivateIncomingCallListener();
+	privateChatTarget = target;
+	privateChatId = chatId;
+	startPrivateIncomingCallListener();
+	populatePrivateChatMemberSelect();
 
-    const name = target.name || 'Thành viên';
-    showPrivateChatStatus(`Đang trò chuyện riêng với ${name}.`);
+	const name = target.name || 'Thành viên';
+
+const targetName = document.getElementById('private-chat-target-name');
+if (targetName) targetName.textContent = name;
+
+const targetAvatar = document.getElementById('private-chat-target-avatar');
+
+if (targetAvatar) {
+  targetAvatar.src =
+    target.avatar ||
+    target.photoURL ||
+    'https://api.dicebear.com/7.x/bottts/svg?seed=Member';
+}
+//	showPrivateChatStatus(`Đang trò chuyện riêng với ${name}.`);
 
     const heading = document.getElementById('private-chat-notice');
     if (heading) heading.classList.add('hidden');
@@ -2374,18 +2444,54 @@ const messages = snapshot.docs.map(item => {
   }
 }
 
-const privateMemberSelect = document.getElementById('private-chat-member');
+// Bấm thành viên ở sidebar để mở chat riêng.
+const chatMemberList = document.getElementById('chat-member-list');
 
-if (privateMemberSelect && !privateMemberSelect.dataset.privateBound) {
-  privateMemberSelect.dataset.privateBound = 'true';
+if (chatMemberList && !chatMemberList.dataset.privateBound) {
+  chatMemberList.dataset.privateBound = 'true';
 
-  privateMemberSelect.addEventListener('change', () => {
-    openPrivateChat(privateMemberSelect.value);
+  chatMemberList.addEventListener('click', event => {
+    const memberButton = event.target.closest('[data-chat-member]');
+    if (!memberButton) return;
+
+    const targetUid = memberButton.dataset.chatMember;
+    if (!targetUid) return;
+
+    setChatMode('private');
+    openPrivateChat(targetUid);
   });
 }
 
-const privateChatForm = document.getElementById('private-chat-form');
+// Quay lại chat nhóm.
+const privateChatBack = document.getElementById('private-chat-back');
 
+if (privateChatBack && !privateChatBack.dataset.privateBound) {
+  privateChatBack.dataset.privateBound = 'true';
+
+  privateChatBack.addEventListener('click', () => {
+    stopPrivateChatListener();
+    privateChatTarget = null;
+	const memberSelect = document.getElementById('private-chat-member');
+	if (memberSelect) memberSelect.value = '';
+    setChatMode('group');
+  });
+}
+
+const privateMemberSelect = document.getElementById('private-chat-member');
+if (privateMemberSelect && !privateMemberSelect.dataset.privateBound) {
+  privateMemberSelect.dataset.privateBound = 'true';
+  privateMemberSelect.addEventListener('change', () => {
+  const targetUid = privateMemberSelect.value;
+
+  if (targetUid) {
+    setChatMode('private');
+    openPrivateChat(targetUid);
+  }
+});
+}
+
+populatePrivateChatMemberSelect();
+const privateChatForm = document.getElementById('private-chat-form');
 const privateMediaInput = document.getElementById('private-chat-media-input');
 const privateMediaButton = document.getElementById('private-chat-media-button');
 
@@ -2516,9 +2622,9 @@ try {
   collection(db, 'privateChats', sendingChatId, 'messages'),
   {
     senderId: user.uid,
-    senderName: profile.displayName || 'Thành viên',
-    avatar: profile.photoURL || '',
-    text,
+senderName: profile.displayName || 'Thành viên',
+avatar: profile.avatar || profile.photoURL || '',
+text,
     createdAt: serverTimestamp(),
     replyTo: privateReplyingTo ? { ...privateReplyingTo } : null,
     ...mediaData

@@ -36,17 +36,21 @@ function renderChatMembers() {
     const online = onlineStates[member.uid] === true;
 
     return `
-      <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-amber-50">
-        <div class="relative shrink-0">
-          <img src="${escapeHtml(avatar)}" alt="" class="w-10 h-10 rounded-full object-cover bg-stone-100">
-          <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${online ? 'bg-green-500' : 'bg-stone-300'}"></span>
-        </div>
-        <div class="min-w-0">
-          <p class="text-sm font-medium text-stone-800 truncate">${escapeHtml(member.name)}</p>
-          <p class="text-xs ${online ? 'text-green-600' : 'text-stone-400'}">${online ? 'Đang online' : 'Offline'}</p>
-        </div>
-      </div>
-    `;
+  <button
+    type="button"
+    data-chat-member="${escapeHtml(member.uid)}"
+    class="w-full flex items-center gap-3 p-2 rounded-xl text-left hover:bg-amber-50 transition"
+  >
+    <div class="relative shrink-0">
+      <img src="${escapeHtml(avatar)}" alt="" class="w-10 h-10 rounded-full object-cover bg-stone-100">
+      <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${online ? 'bg-green-500' : 'bg-stone-300'}"></span>
+    </div>
+    <div class="min-w-0">
+      <p class="text-sm font-medium text-stone-800 truncate">${escapeHtml(member.name)}</p>
+      <p class="text-xs ${online ? 'text-green-600' : 'text-stone-400'}">${online ? 'Đang online' : 'Offline'}</p>
+    </div>
+  </button>
+`;
   }).join('');
 }
 
