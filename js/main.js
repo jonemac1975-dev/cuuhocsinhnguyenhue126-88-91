@@ -156,6 +156,30 @@ onMessage(messaging, async (payload) => {
 
   const data = payload.data || {};
 
+// Cập nhật badge khi FCM đến trong lúc website đang mở.
+if (
+  (data.type === 'private_chat' || data.type === 'group_chat') &&
+  data.badgeKey &&
+  data.badgeEventId &&
+  'serviceWorker' in navigator
+) {
+  try {
+    const registration = await navigator.serviceWorker.ready;
+
+    const worker =
+      registration.active ||
+      navigator.serviceWorker.controller;
+
+    worker?.postMessage({
+      type: 'CHAT_BADGE_INCREMENT',
+      badgeKey: data.badgeKey,
+      badgeEventId: data.badgeEventId
+    });
+  } catch (error) {
+    console.warn('[FCM BADGE] Không cập nhật được badge:', error);
+  }
+}
+
   if (!('Notification' in window) ||
       Notification.permission !== 'granted') {
     return;

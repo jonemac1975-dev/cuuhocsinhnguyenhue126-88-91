@@ -16,6 +16,10 @@ let privateChatId = null;
 let privateChatTarget = null;
 let privateChatSending = false;
 let selectedPrivateChatMedia = null;
+// Theo dõi chế độ chat và trạng thái đọc
+let activeChatMode = 'group';
+let lastGroupReadMessageId = '';
+let lastPrivateReadKey = '';
 // Trạng thái gọi thoại riêng 1–1
 let privateCallUnsubscribe = null;
 let privateCallDocId = null;
@@ -52,7 +56,7 @@ function setPrivateChatMediaStatus(message, type = '') {
 
 function setChatMode(mode) {
   const isPrivate = mode === 'private';
-
+  activeChatMode = isPrivate ? 'private' : 'group';
   const groupPanel = document.getElementById('group-chat-panel');
   const privatePanel = document.getElementById('private-chat-panel');
 
@@ -68,6 +72,133 @@ function setChatMode(mode) {
   document
     .getElementById('private-chat-notice')
     ?.classList.toggle('hidden', !isPrivate);
+// Khi quay lại chat chung, đánh dấu tin đang hiển thị đã đọc.
+if (!isPrivate) {
+  const messages = state.messages || [];
+  const latest = messages[messages.length - 1];
+
+  if (latest) {
+    markGroupChatRead(latest.id);
+  }
+}
+}
+
+
+function canMarkChatAsRead(mode) {
+  const panelId = mode === 'group'
+    ? 'group-chat-panel'
+    : 'private-chat-panel';
+
+  const panel = document.getElementById(panelId);
+
+  return state.activeTab === 'chat'
+    && activeChatMode === mode
+    && document.visibilityState === 'visible'
+    && panel
+    && !panel.classList.contains('hidden');
+}
+
+function sendChatBadgeCommand(message) {
+  if (!('serviceWorker' in navigator)) return;
+
+  navigator.serviceWorker.ready
+    .then(registration => {
+      const worker =
+        registration.active ||
+        navigator.serviceWorker.controller;
+
+      if (worker) {
+        worker.postMessage(message);
+      }
+    })
+    .catch(error => {
+      console.warn(
+        '[CHAT BADGE] Không gửi được lệnh:',
+        error
+      );
+    });
+}
+
+// Đánh dấu đã đọc chat chung
+async function markGroupChatRead(latestMessageId) {
+  const user = auth.currentUser;
+
+  if (
+    !user ||
+    !latestMessageId ||
+    !canMarkChatAsRead('group') ||
+    latestMessageId === lastGroupReadMessageId
+  ) return;
+
+  lastGroupReadMessageId = latestMessageId;
+
+  try {
+    await setDoc(
+      doc(db, 'chatReadStates', user.uid),
+      {
+        lastReadAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+sendChatBadgeCommand({
+  type: 'CHAT_BADGE_CLEAR',
+  badgeKey: 'group'
+});
+
+    window.dispatchEvent(new Event('chat-read-state-updated'));
+
+  } catch (error) {
+    if (lastGroupReadMessageId === latestMessageId) {
+      lastGroupReadMessageId = '';
+    }
+
+    console.error('Lỗi đánh dấu đã đọc chat chung:', error);
+  }
+}
+
+
+// Đánh dấu đã đọc chat riêng
+async function markPrivateChatRead(chatId, latestMessageId) {
+  const user = auth.currentUser;
+
+  if (
+    !user ||
+    !chatId ||
+    !latestMessageId ||
+    privateChatId !== chatId ||
+    !canMarkChatAsRead('private')
+  ) return;
+
+  const readKey = `${chatId}_${latestMessageId}`;
+
+  if (readKey === lastPrivateReadKey) return;
+
+  lastPrivateReadKey = readKey;
+
+  try {
+    await setDoc(
+      doc(db, 'privateChats', chatId, 'readStates', user.uid),
+      {
+        lastReadAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+
+sendChatBadgeCommand({
+  type: 'CHAT_BADGE_CLEAR',
+  badgeKey: `private:${chatId}`
+});
+
+    window.dispatchEvent(new Event('chat-read-state-updated'));
+
+  } catch (error) {
+    if (lastPrivateReadKey === readKey) {
+      lastPrivateReadKey = '';
+    }
+
+    console.error('Lỗi đánh dấu đã đọc chat riêng:', error);
+  }
 }
 
 
@@ -500,7 +631,12 @@ export function startChatListener() {
       };
     }).reverse();
 
-    renderChatMessages();
+renderChatMessages();
+const latest = state.messages[state.messages.length - 1];
+if (latest) {
+  markGroupChatRead(latest.id);
+}
+
   }, error => {
     console.error('Lỗi tải tin nhắn chat:', error);
     const container = document.getElementById('chat-messages');
@@ -1662,6 +1798,39 @@ async function markPrivateCallMissed(callId) {
       }
     );
 
+    // Gửi thông báo cuộc gọi nhỡ qua Worker.
+    // Nếu gửi thông báo lỗi, tin nhắn đã lưu vẫn được giữ nguyên.
+    try {
+      const idToken = await user.getIdToken();
+
+      const notifyResponse = await fetch(
+        'https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/private-chat/notify',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            chatId: call.chatId,
+            messageId: missedMessageId
+          })
+        }
+      );
+
+      if (!notifyResponse.ok) {
+        console.warn(
+          '[PRIVATE CALL] Worker không gửi được thông báo:',
+          await notifyResponse.text()
+        );
+      }
+    } catch (notifyError) {
+      console.warn(
+        '[PRIVATE CALL] Lỗi gửi thông báo cuộc gọi nhỡ:',
+        notifyError
+      );
+    }
+
     console.log('[PRIVATE CALL] Đã ghi nhận cuộc gọi nhỡ:', callId);
   } catch (error) {
     console.error(
@@ -1766,13 +1935,9 @@ try {
 }
 
 privateCallDocId = callRef.id;
-
 clearPrivateCallTimeout();
-privateCallTimeout = setTimeout(() => {
-  void markPrivateCallMissed(callRef.id);
-}, 30000);
-
 const pc = createPrivateCallPeerConnection(callRef.id);
+
 withVideo = await addPrivateCallLocalAudio(pc, withVideo);
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
@@ -1784,19 +1949,18 @@ console.log('[VOICE CALL] Chuẩn bị cập nhật offer');
       },
       updatedAt: serverTimestamp()
     });
-console.log('[VOICE CALL] Đã cập nhật offer thành công');
+// Chỉ bắt đầu tính 30 giây khi offer đã sẵn sàng.
+clearPrivateCallTimeout();
+privateCallTimeout = setTimeout(() => {
+  void markPrivateCallMissed(callRef.id);
+}, 30000);
+
+
 // Gửi thông báo FCM nền, không làm gián đoạn cuộc gọi nếu thất bại.
 
-console.log('[VOICE CALL] Bắt đầu gửi FCM, callId:', callRef.id);
 void (async () => {
   try {
-    console.log('[FCM DEBUG] UID:', user.uid);
-
 const idToken = await user.getIdToken(true);
-
-console.log('[FCM DEBUG] Có ID token:', !!idToken);
-console.log('[FCM DEBUG] Độ dài ID token:', idToken?.length);
-
 const response = await fetch(
   "https://cuuhocsinh126-admin-api.thaythanhtoanly.workers.dev/private-call/notify",
   {
@@ -1812,7 +1976,6 @@ const response = await fetch(
 console.log('[FCM DEBUG] HTTP:', response.status);
 
 const result = await response.json().catch(() => ({}));
-console.log('[FCM DEBUG] Phản hồi:', result);
     if (!response.ok) {
       console.warn(
         "[FCM] Chưa gửi được thông báo:",
@@ -1821,7 +1984,6 @@ console.log('[FCM DEBUG] Phản hồi:', result);
       return;
     }
 
-console.log("[FCM] Kết quả gửi thông báo:", JSON.stringify(result, null, 2));
   } catch (error) {
     console.warn("[FCM] Lỗi gửi thông báo:", error);
   }
@@ -1864,12 +2026,17 @@ console.log("[FCM] Kết quả gửi thông báo:", JSON.stringify(result, null,
           }
         }
 
-        if (data.status === 'rejected') {
+                if (data.status === 'rejected') {
           await cleanupPrivateCall();
           updatePrivateCallUI('Người nhận đã từ chối cuộc gọi.');
         } else if (data.status === 'ended') {
           await cleanupPrivateCall();
           updatePrivateCallUI('Cuộc gọi đã kết thúc.');
+        } else if (data.status === 'missed') {
+          await cleanupPrivateCall();
+          updatePrivateCallUI(
+            'Người nhận không trả lời. Cuộc gọi đã được ghi nhận là cuộc gọi nhỡ.'
+          );
         }
       },
       (error) => {
@@ -2163,13 +2330,30 @@ if (privateCallDocId && !privateCallPeerConnection) {
     .then(async (callSnapshot) => {
       if (privateCallDocId !== oldCallId) return;
 
-      if (
-  !callSnapshot.exists() ||
-  callSnapshot.data().status !== 'calling'
-) {
-  await cleanupPrivateCall();
-  updatePrivateCallUI('Cuộc gọi đã kết thúc.');
-}
+            const callData = callSnapshot.exists()
+        ? callSnapshot.data()
+        : null;
+
+      if (!callData || callData.status !== 'calling') {
+        const isMissed = callData?.status === 'missed';
+
+        const callerName =
+          callData?.callerName ||
+          callData?.senderName ||
+          'Thành viên';
+
+        await cleanupPrivateCall();
+
+        if (isMissed) {
+          updatePrivateCallUI(
+            callData.callType === 'video'
+              ? `📹 cuộc gọi nhỡ video từ ${callerName}.`
+              : `📞 cuộc gọi nhỡ thoại từ ${callerName}.`
+          );
+        } else {
+          updatePrivateCallUI('Cuộc gọi đã kết thúc.');
+        }
+      }
     })
     .catch((error) => {
       console.error('Lỗi kiểm tra trạng thái cuộc gọi:', error);
@@ -2427,6 +2611,11 @@ const messages = snapshot.docs.map(item => {
 
 	state.privateMessages = messages;
 	renderPrivateChatMessages(messages);
+	const latest = messages[messages.length - 1];
+	if (latest) {
+	markPrivateChatRead(listeningChatId, latest.id);
+	}
+
     }, error => {
       console.error('Lỗi tải chat riêng:', error);
       showPrivateChatStatus(
